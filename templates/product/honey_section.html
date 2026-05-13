@@ -1,0 +1,66 @@
+<div class="container my-5 text-center">
+    <!-- Section Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2 text-start">
+        <h4 class="fw-bold mb-0" style="position: relative;">
+            All Natural Honey
+            <span style="position: absolute; bottom: -10px; left: 0; width: 50px; height: 3px; background-color: #f39c12;"></span>
+        </h4>
+        <a href="#" class="text-warning text-decoration-none small fw-bold">VIEW ALL ITEMS <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 text-start">
+        <!-- প্রোডাক্ট কার্ডগুলো এখানে থাকবে (আগের কোডের মতো) -->
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm p-3 position-relative honey-card">
+                <span class="position-absolute top-0 end-0 badge bg-success m-2 px-2 py-1" style="font-size: 10px;">Save 12%</span>
+                <img src="https://ghorerbazar.com/wp-content/uploads/2021/08/Sundarban-Honey-1kg.jpg" class="card-img-top mx-auto" alt="Honey" style="max-height: 180px; object-fit: contain;">
+                <div class="card-body p-0 mt-3">
+                    <h6 class="card-title fw-bold text-dark mb-1">Sundarban Honey 1kg</h6>
+                    <div class="price-box mb-3">
+                        <span class="text-warning fw-bold fs-6">৳2,200</span>
+                        <span class="text-muted text-decoration-line-through ms-2 small">৳2,500</span>
+                    </div>
+                    <button class="btn btn-outline-warning w-100 btn-sm py-2 fw-bold">
+                        <i class="fas fa-shopping-cart me-1"></i> Add To Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- আরও ৪টি কার্ড একইভাবে যুক্ত করুন... -->
+    </div>
+
+    <!-- Pagination Dots (As seen in image_39d15a.png) -->
+    <div class="pagination-dots mt-4 d-flex justify-content-center gap-2">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+    </div>
+</div>
+
+<style>
+    /* Pagination Styles */
+    .dot {
+        width: 10px;
+        height: 10px;
+        border: 1px solid #f39c12;
+        border-radius: 50%;
+        display: inline-block;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .dot.active {
+        background-color: #f39c12;
+        width: 12px;
+        height: 12px;
+    }
+    .dot:hover {
+        background-color: rgba(243, 156, 18, 0.5);
+    }
+    
+    /* Previous Card Styles */
+    .honey-card { transition: transform 0.2s; }
+    .honey-card:hover { transform: translateY(-5px); }
+</style>

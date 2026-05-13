@@ -1,0 +1,93 @@
+<div class="container-fluid my-5 py-5" style="background-color: #fff9f0;">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <div class="bg-warning p-2 rounded me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                    <i class="fas fa-gift text-white"></i>
+                </div>
+                <h4 class="fw-bold mb-0 text-dark">Exclusive Combo Deals</h4>
+            </div>
+            <a href="#" class="btn btn-warning text-white btn-sm px-3 fw-bold" style="border-radius: 5px;">View All Combos &rarr;</a>
+        </div>
+
+        <!-- Combo Grid -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3">
+            
+            <!-- Combo Card 1 -->
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm p-3 position-relative combo-card">
+                    <!-- Badges -->
+                    <div class="d-flex justify-content-between position-absolute top-0 start-0 end-0 p-2">
+                        <span class="badge bg-success" style="font-size: 9px;">Save 8.5%</span>
+                        <span class="badge bg-warning text-white" style="font-size: 9px;">Combo Offer</span>
+                    </div>
+                    
+                    <img src="https://ghorerbazar.com/wp-content/uploads/2024/03/Eid-Combo-1.jpg" class="card-img-top mx-auto mt-3" alt="EID Combo" style="max-height: 150px; object-fit: contain;">
+                    
+                    <div class="card-body p-0 mt-3">
+                        <h6 class="card-title fw-bold text-dark mb-1" style="font-size: 14px;">EID Combo -1</h6>
+                        <div class="price-box mb-3">
+                            <span class="text-warning fw-bold">৳1,500.00</span>
+                            <span class="text-muted text-decoration-line-through ms-2 small">৳1,640.00</span>
+                        </div>
+                        <button class="btn btn-warning w-100 text-white fw-bold py-2" style="font-size: 13px; border-radius: 5px;">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Combo Card 2 (Template for others) -->
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm p-3 position-relative combo-card">
+                    <div class="d-flex justify-content-between position-absolute top-0 start-0 end-0 p-2">
+                        <span class="badge bg-success" style="font-size: 9px;">Save 10.3%</span>
+                        <span class="badge bg-warning text-white" style="font-size: 9px;">Combo Offer</span>
+                    </div>
+                    <img src="https://ghorerbazar.com/wp-content/uploads/2024/03/Eid-Combo-2.jpg" class="card-img-top mx-auto mt-3" alt="EID Combo" style="max-height: 150px; object-fit: contain;">
+                    <div class="card-body p-0 mt-3">
+                        <h6 class="card-title fw-bold text-dark mb-1" style="font-size: 14px;">EID Combo -2</h6>
+                        <div class="price-box mb-3">
+                            <span class="text-warning fw-bold">৳2,000.00</span>
+                            <span class="text-muted text-decoration-line-through ms-2 small">৳2,230.00</span>
+                        </div>
+                        <button class="btn btn-warning w-100 text-white fw-bold py-2" style="font-size: 13px; border-radius: 5px;">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Repeat for Combo -3, -4, and Masala combo -->
+            <!-- ... -->
+
+        </div>
+
+        <!-- Pagination Dots -->
+        <div class="pagination-dots mt-4 d-flex justify-content-center gap-2">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .combo-card {
+        border-radius: 8px;
+        transition: transform 0.2s ease;
+    }
+    .combo-card:hover {
+        transform: scale(1.02);
+    }
+    .dot {
+        width: 8px;
+        height: 8px;
+        border: 1px solid #f39c12;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .dot.active {
+        background-color: #f39c12;
+    }
+</style>

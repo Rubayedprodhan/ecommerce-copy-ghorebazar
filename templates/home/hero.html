@@ -1,0 +1,101 @@
+<div class="container my-4">
+    <div class="row g-3">
+        <!-- Main Slider (Left Side) -->
+        <div class="col-lg-8">
+            <div id="heroCarousel" class="carousel slide shadow-sm rounded overflow-hidden" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+                </div>
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="https://ghorerbazar.com/wp-content/uploads/2023/11/Oil-Banner.jpg" class="d-block w-100" alt="Pure Oil">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://ghorerbazar.com/wp-content/uploads/2023/11/Honey-Banner.jpg" class="d-block w-100" alt="Organic Honey">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Static Banner (Right Side) -->
+        <div class="col-lg-4 d-none d-lg-block">
+            <div class="promo-banner shadow-sm rounded overflow-hidden h-100">
+                <img src="https://ghorerbazar.com/wp-content/uploads/2023/10/Side-Banner.jpg" class="img-fluid h-100 object-fit-cover" alt="Special Promo">
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Categories Section -->
+    <div class="mt-5 text-center">
+        <h4 class="fw-bold mb-4" style="color: #333;">Featured Categories</h4>
+        <div class="position-relative">
+            <div class="d-flex justify-content-between overflow-auto pb-3 no-scrollbar">
+                <!-- Category Item -->
+                <div class="category-card px-2">
+                    <div class="bg-white p-3 rounded-4 shadow-sm mb-2 border hover-shadow" style="width: 120px; height: 120px;">
+                        <img src="https://ghorerbazar.com/wp-content/uploads/2022/01/honey-icon.png" class="img-fluid" alt="Honey">
+                    </div>
+                    <small class="fw-bold">Honey</small>
+                </div>
+                <!-- Copy of Category Items -->
+                <div class="category-card px-2">
+                    <div class="bg-white p-3 rounded-4 shadow-sm mb-2 border hover-shadow" style="width: 120px; height: 120px;">
+                        <img src="https://ghorerbazar.com/wp-content/uploads/2022/01/dates-icon.png" class="img-fluid" alt="Dates">
+                    </div>
+                    <small class="fw-bold">Dates</small>
+                </div>
+                <div class="category-card px-2">
+                    <div class="bg-white p-3 rounded-4 shadow-sm mb-2 border hover-shadow" style="width: 120px; height: 120px;">
+                        <img src="https://ghorerbazar.com/wp-content/uploads/2022/01/spices-icon.png" class="img-fluid" alt="Spices">
+                    </div>
+                    <small class="fw-bold">Spices</small>
+                </div>
+                <div class="category-card px-2">
+                    <div class="bg-white p-3 rounded-4 shadow-sm mb-2 border hover-shadow" style="width: 120px; height: 120px;">
+                        <img src="https://ghorerbazar.com/wp-content/uploads/2022/01/nuts-icon.png" class="img-fluid" alt="Nuts">
+                    </div>
+                    <small class="fw-bold">Nuts & Seeds</small>
+                </div>
+                <div class="category-card px-2">
+                    <div class="bg-white p-3 rounded-4 shadow-sm mb-2 border hover-shadow" style="width: 120px; height: 120px;">
+                        <img src="https://ghorerbazar.com/wp-content/uploads/2022/01/beverage-icon.png" class="img-fluid" alt="Beverage">
+                    </div>
+                    <small class="fw-bold">Beverage</small>
+                </div>
+                <div class="category-card px-2">
+                    <div class="bg-white p-3 rounded-4 shadow-sm mb-2 border hover-shadow" style="width: 120px; height: 120px;">
+                        <img src="https://ghorerbazar.com/wp-content/uploads/2022/01/rice-icon.png" class="img-fluid" alt="Rice">
+                    </div>
+                    <small class="fw-bold">Rice</small>
+                </div>
+                <div class="category-card px-2">
+                    <div class="bg-white p-3 rounded-4 shadow-sm mb-2 border hover-shadow" style="width: 120px; height: 120px;">
+                        <img src="https://ghorerbazar.com/wp-content/uploads/2022/01/flours-icon.png" class="img-fluid" alt="Flours">
+                    </div>
+                    <small class="fw-bold">Flours & Lentils</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .carousel-item img { height: 400px; object-fit: cover; }
+    .promo-banner img { object-position: center; }
+    .hover-shadow:hover { 
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        transform: translateY(-5px);
+        transition: all 0.3s ease;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .category-card { transition: all 0.3s ease; cursor: pointer; }
+</style>
