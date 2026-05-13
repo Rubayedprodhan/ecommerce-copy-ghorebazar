@@ -112,7 +112,16 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+#Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+import os
+
+# The URL to use when referring to static files
+STATIC_URL = 'static/'
+
+# The physical location of your static folder in your project
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
