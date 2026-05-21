@@ -1,0 +1,235 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-3">
+    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Home</a></li>
+            <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-muted">Products</a></li>
+            <li class="breadcrumb-item active text-dark" aria-current="page">{{ product.name }}</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container my-4">
+    <div class="bg-white border rounded-3 p-4 shadow-sm">
+        <div class="row g-4">
+            
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-2 d-none d-sm-block">
+                        <div class="d-flex flex-column gap-2">
+                            <div class="border rounded p-1 cursor-pointer active-thumb">
+                                <img src="{{ product.image.url }}" class="img-fluid" alt="thumb">
+                            </div>
+                            {% if product.image_2 %}
+                            <div class="border rounded p-1 cursor-pointer">
+                                <img src="{{ product.image_2.url }}" class="img-fluid" alt="thumb">
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-10 text-center position-relative border rounded p-3 d-flex align-items-center justify-content-center" style="min-height: 400px;">
+                        <img src="{{ product.image.url }}" id="mainProductImg" class="img-fluid object-fit-contain" style="max-height: 380px;" alt="{{ product.name }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <h2 class="fw-bold text-dark h4 mb-2">{{ product.name }}</h2>
+                
+                <div class="mb-3">
+                    {% if product.discount_price %}
+                    <span class="text-warning fw-bold h4 mb-0">৳{{ product.discount_price }}</span>
+                    <span class="text-muted text-decoration-line-through ms-2 small">৳{{ product.price }}</span>
+                    {% else %}
+                    <span class="text-warning fw-bold h4 mb-0">৳{{ product.price }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex align-items-center mb-4">
+                    <span class="me-3 text-secondary small">Quantity:</span>
+                    <div class="input-group" style="width: 130px;">
+                        <button class="btn btn-outline-secondary btn-sm" type="button" id="minusBtn">-</button>
+                        <input type="text" class="form-control text-center form-control-sm fw-bold" id="quantityInput" value="1" readonly>
+                        <button class="btn btn-outline-secondary btn-sm" type="button" id="plusBtn">+</button>
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-4">
+                    <div class="col-6">
+                        <button class="btn text-white w-100 py-2 fw-bold" style="background-color: #f39c12;">
+                            <i class="fas fa-shopping-basket me-2"></i>ADD TO CART
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn text-white w-100 py-2 fw-bold" style="background-color: #012b2c;">
+                            BUY NOW
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <a href="https://wa.me/88017XXXXXXXX?text=I want to order {{ product.name }}" target="_blank" class="btn btn-success w-100 py-2 fw-bold">
+                            <i class="fab fa-whatsapp me-2"></i>Order On WhatsApp
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="tel:09642DUMMY" class="btn text-white w-100 py-2 fw-bold" style="background-color: #1a3760;">
+                            <i class="fas fa-phone-alt me-2"></i>Call For Order
+                        </a>
+                    </div>
+                </div>
+
+                {% if product.brands %}
+                <div class="border-top pt-3 d-flex align-items-center gap-2">
+                    <span class="text-secondary small fw-semibold">Brand:</span>
+                    <a href="{% url 'brand_products' product.brands.name %}" class="text-decoration-none">
+                        <div class="border rounded px-3 py-1 d-flex align-items-center bg-white shadow-sm brand-badge-hover">
+                            {% if product.brands.image %}
+                                <img src="{{ product.brands.image.url }}" alt="{{ product.brands.name }}" style="max-height: 25px; object-fit: contain;">
+                            {% else %}
+                                <span class="fw-bold text-dark small">{{ product.brands.name }}</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="container my-4">
+    <div class="bg-white border rounded-3 p-4 shadow-sm">
+        <ul class="nav nav-tabs border-bottom mb-4" id="productTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold text-dark border-bottom-0" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc" type="button" role="tab">Description</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark border-bottom-0" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab">Customer Reviews (0)</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="productTabContent">
+            <div class="tab-pane fade show active" id="desc" role="tabpanel">
+                <div class="product-details-content text-secondary leading-relaxed">
+                    {{ product.description|linebreaks }}
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="review" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-md-4 text-center border-end">
+                        <h3 class="display-4 fw-bold text-dark mb-0">0.0</h3>
+                        <p class="text-muted small">Average Rating</p>
+                        <div class="text-warning mb-2">
+                            <i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+                        </div>
+                        <p class="text-muted small">0% Recommended (0 reviews)</p>
+                    </div>
+                    <div class="col-md-8">
+                        <h5 class="fw-bold mb-3">Submit Your Review</h5>
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label small text-muted">Write your opinion about the product *</label>
+                                <textarea class="form-control" rows="4" placeholder="Write Your Review Here..."></textarea>
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label small text-muted">Your Rating *</label>
+                                <select class="form-select form-select-sm">
+                                    <option selected disabled>Select One</option>
+                                    <option value="5">5 Star - Excellent</option>
+                                    <option value="4">4 Star - Good</option>
+                                    <option value="3">3 Star - Average</option>
+                                    <option value="2">2 Star - Poor</option>
+                                    <option value="1">1 Star - Terrible</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-dark btn-sm px-4">SUBMIT REVIEW</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h4 class="fw-bold mb-0" style="position: relative;">Related Products<span style="position: absolute; bottom: -10px; left: 0; width: 50px; height: 3px; background-color: #f39c12;"></span></h4>
+        <a href="#" class="text-warning text-decoration-none small fw-bold">More Products <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-5 g-3">
+        {% for related in related_products %}
+        <div class="col">
+            <div class="card h-100 text-center border shadow-sm p-2 rounded-3 position-relative product-card-hover">
+                <a href="{% url 'product_detail' related.product_slug %}" class="d-block text-center p-2">
+                    <img src="{{ related.image.url }}" class="card-img-top img-fluid object-fit-contain" style="height: 150px;" alt="{{ related.name }}">
+                </a>
+                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                    <a href="{% url 'product_detail' related.product_slug %}" class="text-decoration-none text-dark">
+                        <h6 class="card-title text-dark small text-truncate mb-1 fw-bold">{{ related.name }}</h6>
+                    </a>
+                    
+                    <div class="text-box mb-2">
+                        {% if related.discount_price %}
+                        <span class="text-warning fw-bold small">৳{{ related.discount_price }}</span>
+                        <span class="text-muted text-decoration-line-through x-small ms-1">৳{{ related.price }}</span>
+                        {% else %}
+                        <span class="text-warning fw-bold small">৳{{ related.price }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <button class="btn btn-outline-warning btn-sm w-100 py-1 fw-bold text-uppercase mt-auto" style="font-size: 11px;">Add To Cart</button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center text-muted">No related products found.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    const minusBtn = document.getElementById('minusBtn');
+    const plusBtn = document.getElementById('plusBtn');
+    const quantityInput = document.getElementById('quantityInput');
+
+    minusBtn.addEventListener('click', () => {
+        let currentValue = parseInt(quantityInput.value);
+        if (currentValue > 1) {
+            quantityInput.value = currentValue - 1;
+        }
+    });
+
+    plusBtn.addEventListener('click', () => {
+        let currentValue = parseInt(quantityInput.value);
+        quantityInput.value = currentValue + 1;
+    });
+</script>
+
+<style>
+    .cursor-pointer { cursor: pointer; }
+    .active-thumb { border-color: #f39c12 !important; border-width: 2px !important; }
+    
+    /* ব্রান্ড ব্যাজের হোভার ইফেক্ট */
+    .brand-badge-hover {
+        transition: all 0.2s ease;
+    }
+    .brand-badge-hover:hover {
+        border-color: #f39c12 !important;
+        background-color: #fff9f0 !important;
+    }
+    
+    /* রিলেটেড প্রোডাক্ট হোভার */
+    .product-card-hover {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .product-card-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    }
+    .x-small { font-size: 11px; }
+</style>
+{% endblock %}

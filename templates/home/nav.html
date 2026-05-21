@@ -48,35 +48,21 @@
     </div>
 </div>
 
+
 <!-- Bottom Header: Category Navigation -->
 <div class="container-fluid" style="background-color: #002d25;">
     <div class="container overflow-auto">
         <ul class="nav justify-content-between text-nowrap py-2">
             <li class="nav-item"><a href="#" class="nav-link text-white small px-2">EID 2026</a></li>
             <li class="nav-item"><a href="#" class="nav-link text-white small px-2">Offer Zone</a></li>
-            <li class="nav-item dropdown">
-                <a href="#" class="nav-link text-white small px-2 dropdown-toggle">Honey</a>
+            {% for cat in menu_categories %}
+            <li class="nav-item">
+                <a href="{% url 'category_product' cat.name %}" class="nav-link text-white small px-2">
+                    {{ cat.name }}
+                </a>
             </li>
-            <li class="nav-item"><a href="#" class="nav-link text-white small px-2">Oil & Ghee</a></li>
-            <li class="nav-item dropdown">
-                <a href="#" class="nav-link text-white small px-2 dropdown-toggle">Dates</a>
-            </li>
-            <li class="nav-item dropdown">
-                <a href="#" class="nav-link text-white small px-2 dropdown-toggle">Spices</a>
-            </li>
-            <li class="nav-item dropdown">
-                <a href="#" class="nav-link text-white small px-2 dropdown-toggle">Nuts & Seeds</a>
-            </li>
-            <li class="nav-item dropdown">
-                <a href="#" class="nav-link text-white small px-2 dropdown-toggle">Beverage</a>
-            </li>
-            <li class="nav-item"><a href="#" class="nav-link text-white small px-2">Rice</a></li>
-            <li class="nav-item dropdown">
-                <a href="#" class="nav-link text-white small px-2 dropdown-toggle">Flours & Lentils</a>
-            </li>
-            <li class="nav-item"><a href="#" class="nav-link text-white small px-2">Certified</a></li>
-            <li class="nav-item"><a href="#" class="nav-link text-white small px-2">Pickle</a></li>
-            <li class="nav-item"><a href="#" class="nav-link text-white small px-2">Tabaya</a></li>
+    
+            {% endfor %}
         </ul>
     </div>
 </div>

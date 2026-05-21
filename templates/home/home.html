@@ -1,0 +1,502 @@
+{% extends 'home/base.html' %}
+
+{% block title %}Home - Ghorer Bazar Clone{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<div class="container my-4">
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div id="heroCarousel" class="carousel slide shadow-sm rounded-4 overflow-hidden" data-bs-ride="carousel">
+                <div class="carousel-indicators custom-dots">
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3"></button>
+                </div>
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="{% static 'images/bannar1.jpg' %}" class="d-block w-100" alt="Banner 1">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="{% static 'images/bannar2.png' %}" class="d-block w-100" alt="Banner 2">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="{% static 'images/bannar3.jpeg' %}" class="d-block w-100" alt="Banner 3">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="{% static 'images/bannar4.jpeg' %}" class="d-block w-100" alt="Banner 4">
+                    </div>
+                </div>
+                <button class="carousel-control-prev custom-nav" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                    <span class="fas fa-arrow-left"></span>
+                </button>
+                <button class="carousel-control-next custom-nav" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                    <span class="fas fa-arrow-right"></span>
+                </button>
+            </div>
+        </div>
+        <div class="col-lg-4 d-none d-lg-block">
+            <div class="promo-banner shadow-sm rounded-4 overflow-hidden h-100">
+                <img src="{% static 'images/leftbannar.png' %}" class="img-fluid h-100 object-fit-cover" alt="Special Promo">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- Featured Categories (Dynamic) -->
+<div class="container mt-5">
+    <h5 class="text-center fw-bold mb-4" style="color: #2c3e50">Featured Categories</h5>
+    <div class="position-relative">
+        <button class="cat-arrow left-arrow" id="catScrollLeft"><i class="fas fa-chevron-left"></i></button>
+        <div class="d-flex justify-content-between overflow-auto no-scrollbar gap-2 px-1" id="catScrollContainer">
+            {% for cat in Featured_Categories %}
+            
+            <a href="{% url 'category_product' cat.name %}" class="text-decoration-none text-dark cat-item text-center d-inline-block">
+                <div class="cat-box bg-white border shadow-sm d-flex align-items-center justify-content-center">
+                    {% if cat.image %}
+                    <img src="{{ cat.image.url }}" alt="{{ cat.name }}">
+                    {% else %}
+                    <i class="fas fa-tag fa-2x text-warning"></i>
+                    {% endif %}
+                </div>
+                <p class="mt-2 fw-semibold small">{{ cat.name }}</p>
+            </a>
+
+            {% empty %}
+            <div class="col-12 text-center">No categories found.</div>
+            {% endfor %}
+        </div>
+        <button class="cat-arrow right-arrow" id="catScrollRight"><i class="fas fa-chevron-right"></i></button>
+    </div>
+</div>
+
+
+
+
+
+
+<!-- Top Selling Products (Dynamic) -->
+<div class="container my-5">
+    <h3 class="text-center fw-bold mb-4">Top Selling Products</h3>
+    <div class="row g-4">
+        {% for product in top_selling %}
+        <div class="col-md-6">
+            <div class="product-card p-3 bg-white border rounded shadow-sm position-relative h-100">
+                <div class="row align-items-center">
+                    <div class="col-4">
+                        <!-- ছবির উপর ক্লিক করলে প্রোডাক্ট ওপেন হবে -->
+                        <a href="{% url 'product_detail' product.product_slug %}" class="text-decoration-none">
+                            <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}">
+                        </a>
+                    </div>
+                    <div class="col-8">
+                        <!-- নামের উপর ক্লিক করলে প্রোডাক্ট ওপেন হবে -->
+                        <a href="{% url 'product_detail' product.product_slug %}" class="text-decoration-none text-dark">
+                            <h5 class="fw-bold mb-1 product-title-hover">{{ product.name }}</h5>
+                        </a>
+                        
+                        <div class="price-section mb-2">
+                            <span class="text-warning fw-bold fs-5">৳{{ product.discount_price }}</span>
+                             {% if product.discount_price %}
+                            <span class="text-muted text-decoration-line-through ms-2 small">৳{{ product.price }}</span>
+                            {% endif %} 
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-warning btn-sm px-3 flex-grow-1"><i class="fas fa-shopping-cart me-1"></i> Add To Cart</button>
+                            <button class="btn btn-warning btn-sm px-3 flex-grow-1 text-white">Buy now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">No top selling products found.</div>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+
+<!-- Brands Section (Dynamic) -->
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h4 class="fw-bold mb-0" style="position: relative;">Our Brands<span style="position: absolute; bottom: -10px; left: 0; width: 50px; height: 3px; background-color: #f39c12;"></span></h4>
+        <a href="#" class="text-warning text-decoration-none small fw-bold">SEE ALL <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-6 g-2 justify-content-center">
+        {% for brand_item in brand|slice:":6" %}
+        <div class="col">
+            <a href="{% url 'brand_products' brand_item.name %}" class="text-decoration-none d-block h-100">
+                <div class="brand-box bg-white border rounded p-3 d-flex align-items-center justify-content-center h-100 shadow-sm brand-hover">
+                    <img src="{{ brand_item.image.url }}" alt="{{ brand_item.name }}" class="img-fluid brand-img" style="max-height: 80px; object-fit: contain;">
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">No brands available.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+
+.brand-hover {
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.brand-hover:hover {
+    transform: translateY(-3px);
+    border-color: #f39c12 !important;
+}
+</style>
+
+
+
+
+<!-- All Natural Honey Section (Dynamic) -->
+
+
+
+<div class="container my-5 text-center">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2 text-start">
+        <h4 class="fw-bold mb-0" style="position: relative;">All Natural Honey<span style="position: absolute; bottom: -10px; left: 0; width: 50px; height: 3px; background-color: #f39c12;"></span></h4>
+        <a href="#" class="text-warning text-decoration-none small fw-bold">VIEW ALL ITEMS <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 text-start">
+        {% for product in all_natural %}
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm p-3 position-relative honey-card product-card-hover">
+                
+              
+
+                <a href="{% url 'product_detail' product.product_slug %}" class="d-block text-center mb-2">
+                    <img src="{{ product.image.url }}" class="card-img-top mx-auto" alt="{{ product.name }}" style="max-height: 180px; object-fit: contain;">
+                </a>
+
+                <div class="card-body p-0 mt-2 d-flex flex-column justify-content-between">
+                    <div>
+                        <a href="{% url 'product_detail' product.product_slug %}" class="text-decoration-none text-dark">
+                            <h6 class="card-title fw-bold text-dark mb-1 text-truncate-2" style="font-size: 14px; min-height: 38px; overflow: hidden;">{{ product.name }}</h6>
+                        </a>
+                        
+                        <div class="price-box mb-3">
+                            {% if product.discount_price %}
+                            <span class="text-warning fw-bold fs-6">৳{{ product.discount_price }}</span>
+                            <span class="text-muted text-decoration-line-through ms-2 small">৳{{ product.price }}</span>
+                            {% else %}
+                            <span class="text-warning fw-bold fs-6">৳{{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-outline-warning w-100 btn-sm py-2 fw-bold mt-auto"><i class="fas fa-shopping-cart me-1"></i> Add To Cart</button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">No honey products found.</div>
+        {% endfor %}
+    </div>
+    <div class="pagination-dots mt-4 d-flex justify-content-center gap-2">
+        <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+</div>
+
+<style>
+.product-card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.product-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1) !important;
+}
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+
+
+
+
+
+
+<div class="container-fluid my-5 py-5" style="background-color: #fff9f0">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center"><div class="bg-warning p-2 rounded me-2"><i class="fas fa-gift text-white"></i></div><h4 class="fw-bold mb-0 text-dark">Exclusive Combo Deals</h4></div>
+            <a href="#" class="btn btn-warning text-white btn-sm px-3 fw-bold">View All Combos &rarr;</a>
+        </div>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3">
+            {% for product in exclusive_combo %}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm p-3 position-relative combo-card product-card-hover">
+                    <div class="d-flex justify-content-between position-absolute top-0 start-0 end-0 p-2" style="z-index: 2;">
+                        {% if product.discount_price %}
+                        <span class="badge bg-success">Save {{ product.get_save_percent|floatformat:0 }}%</span>
+                        {% endif %}
+                        <span class="badge bg-warning text-white">Combo Offer</span>
+                    </div>
+                    
+                    <a href="{% url 'product_detail' product.product_slug %}" class="d-block text-center mt-3">
+                        <img src="{{ product.image.url }}" class="card-img-top mx-auto" alt="{{ product.name }}" style="max-height: 150px; object-fit: contain;">
+                    </a>
+                    
+                    <div class="card-body p-0 mt-3 d-flex flex-column justify-content-between">
+                        <div>
+                            <a href="{% url 'product_detail' product.product_slug %}" class="text-decoration-none text-dark">
+                                <h6 class="card-title fw-bold text-dark mb-1 text-truncate-2" style="font-size: 14px; min-height: 38px; overflow: hidden;">{{ product.name }}</h6>
+                            </a>
+                            <div class="price-box mb-3">
+                                {% if product.discount_price %}
+                                <span class="text-warning fw-bold">৳{{ product.discount_price }}</span>
+                                <span class="text-muted text-decoration-line-through ms-2 small">৳{{ product.price }}</span>
+                                {% else %}
+                                <span class="text-warning fw-bold">৳{{ product.price }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <a href="{% url 'product_detail' product.product_slug %}" class="btn btn-warning w-100 text-white fw-bold py-2">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">No combo deals available.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="container my-5 text-center">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2 text-start">
+        <h4 class="fw-bold mb-0" style="position: relative;">Premium Dates<span style="position: absolute; bottom: -10px; left: 0; width: 50px; height: 3px; background-color: #f39c12;"></span></h4>
+        <a href="#" class="text-warning text-decoration-none small fw-bold">VIEW ALL ITEMS <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 text-start">
+        {% for product in premium_dates %}
+        <div class="col">
+            <div class="card h-100 border border-light shadow-sm p-3 position-relative date-card product-card-hover">
+            
+                
+                <a href="{% url 'product_detail' product.product_slug %}" class="d-block text-center mt-2">
+                    <img src="{{ product.image.url }}" class="card-img-top mx-auto" alt="{{ product.name }}" style="max-height: 160px; object-fit: contain;">
+                </a>
+                
+                <div class="card-body p-0 mt-3 d-flex flex-column justify-content-between">
+                    <div>
+                        <a href="{% url 'product_detail' product.product_slug %}" class="text-decoration-none text-dark">
+                            <h6 class="card-title fw-bold text-dark mb-1 text-truncate-2" style="font-size: 14px; min-height: 38px; overflow: hidden;">{{ product.name }}</h6>
+                        </a>
+                        <div class="price-box mb-3">
+                            {% if product.discount_price %}
+                            <span class="text-warning fw-bold">৳{{ product.discount_price }}</span>
+                            <span class="text-muted text-decoration-line-through ms-2 small">৳{{ product.price }}</span>
+                            {% else %}
+                            <span class="text-warning fw-bold">৳{{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-warning w-100 btn-sm py-2 fw-bold"><i class="fas fa-shopping-cart me-1"></i> Add To Cart</button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">No dates products found.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="promo-banner position-relative overflow-hidden rounded-4 shadow-sm p-0" style="background-color: #fdf6e3; min-height: 250px;">
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    <img src="{% static 'images/herobannar.jpg' %}" alt="Cooking Essentials" class="img-fluid w-100 h-100 object-fit-cover" style="max-height: 300px;">
+                </div>
+                <div class="position-absolute bottom-0 start-0 w-100" style="height: 40px; background: #f39c12; clip-path: ellipse(70% 100% at 50% 100%);"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5 text-center">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2 text-start">
+        <h4 class="fw-bold mb-0" style="position: relative;">Cooking Essentials<span style="position: absolute; bottom: -10px; left: 0; width: 50px; height: 3px; background-color: #f39c12;"></span></h4>
+        <a href="#" class="text-warning text-decoration-none small fw-bold">VIEW ALL ITEMS <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 text-start">
+        {%     for product in cooking_essentials %}
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm p-3 position-relative product-card product-card-hover">
+               
+                
+                <a href="{% url 'product_detail' product.product_slug %}" class="d-block text-center mt-2">
+                    <img src="{{ product.image.url }}" class="card-img-top mx-auto" alt="{{ product.name }}" style="max-height: 160px; object-fit: contain;">
+                </a>
+                
+                <div class="card-body p-0 mt-3 d-flex flex-column justify-content-between">
+                    <div>
+                        <a href="{% url 'product_detail' product.product_slug %}" class="text-decoration-none text-dark">
+                            <h6 class="card-title fw-bold text-dark mb-1 text-truncate-2" style="font-size: 14px; min-height: 38px; overflow: hidden;">{{ product.name }}</h6>
+                        </a>
+                        <div class="price-box mb-3">
+                            {% if product.discount_price %}
+                            <span class="text-warning fw-bold">৳{{ product.discount_price }}</span>
+                            <span class="text-muted text-decoration-line-through ms-2 small">৳{{ product.price }}</span>
+                            {% else %}
+                            <span class="text-warning fw-bold">৳{{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-warning w-100 btn-sm py-2 fw-bold"><i class="fas fa-shopping-cart me-1"></i> Add To Cart</button>
+                </div>
+            </div>
+        </div>
+        {% empty %}<div class="col-12 text-center">No cooking essentials found.</div>{% endfor %}
+    </div>
+</div>
+
+<div class="container my-5 text-center">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2 text-start">
+        <h4 class="fw-bold mb-0" style="position: relative;">Organic Certified<span style="position: absolute; bottom: -10px; left: 0; width: 50px; height: 3px; background-color: #f39c12;"></span></h4>
+        <a href="#" class="text-warning text-decoration-none small fw-bold">VIEW ALL ITEMS <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 text-start">
+        {% for product in organic_certified %}
+        <div class="col">
+            <div class="card h-100 border border-light shadow-sm p-3 position-relative product-card product-card-hover">
+                
+                
+                <a href="{% url 'product_detail' product.product_slug %}" class="d-block text-center mt-2">
+                    <img src="{{ product.image.url }}" class="card-img-top mx-auto" alt="{{ product.name }}" style="max-height: 160px; object-fit: contain;">
+                </a>
+                
+                <div class="card-body p-0 mt-3 d-flex flex-column justify-content-between">
+                    <div>
+                        <a href="{% url 'product_detail' product.product_slug %}" class="text-decoration-none text-dark">
+                            <h6 class="card-title fw-bold text-dark mb-1 text-truncate-2" style="font-size: 14px; min-height: 38px; overflow: hidden;">{{ product.name }}</h6>
+                        </a>
+                        <div class="price-box mb-3">
+                            {% if product.discount_price %}
+                            <span class="text-warning fw-bold">৳{{ product.discount_price }}</span>
+                            <span class="text-muted text-decoration-line-through ms-2 small">৳{{ product.price }}</span>
+                            {% else %}
+                            <span class="text-warning fw-bold">৳{{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-warning w-100 btn-sm py-2 fw-bold"><i class="fas fa-shopping-cart me-1"></i> Add To Cart</button>
+                </div>
+            </div>
+        </div>
+        {% empty %}<div class="col-12 text-center">No organic certified products found.</div>{% endfor %}
+    </div>
+</div>
+
+<div class="container my-5 text-center">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2 text-start">
+        <h4 class="fw-bold mb-0" style="position: relative;">Just For You<span style="position: absolute; bottom: -10px; left: 0; width: 50px; height: 3px; background-color: #f39c12;"></span></h4>
+        <a href="#" class="text-warning text-decoration-none small fw-bold">VIEW ALL PRODUCTS &rarr;</a>
+    </div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 text-start">
+        {% for product in just_for_you %}
+        <div class="col">
+            <div class="card h-100 border border-light shadow-sm p-3 position-relative product-card product-card-hover">
+                {% if product.discount_price %}
+                <span class="position-absolute top-0 end-0 badge bg-success m-2 px-2 py-1" style="z-index: 2;">Save {{ product.get_save_percent|floatformat:0 }}%</span>
+                {% endif %}
+                
+                <a href="{% url 'product_detail' product.product_slug %}" class="d-block text-center mt-2">
+                    <img src="{{ product.image.url }}" class="card-img-top mx-auto" alt="{{ product.name }}" style="max-height: 150px; object-fit: contain;">
+                </a>
+                
+                <div class="card-body p-0 mt-3 d-flex flex-column justify-content-between">
+                    <div>
+                        <a href="{% url 'product_detail' product.product_slug %}" class="text-decoration-none text-dark">
+                            <h6 class="card-title fw-bold text-dark mb-1 text-truncate-2" style="font-size: 14px; min-height: 38px; overflow: hidden;">{{ product.name }}</h6>
+                        </a>
+                        <div class="price-box mb-3">
+                            {% if product.discount_price %}
+                            <span class="text-warning fw-bold">৳{{ product.discount_price }}</span>
+                            <span class="text-muted text-decoration-line-through ms-2 small">৳{{ product.price }}</span>
+                            {% else %}
+                            <span class="text-warning fw-bold">৳{{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-warning w-100 btn-sm py-2 fw-bold"><i class="fas fa-shopping-cart me-1"></i> Add To Cart</button>
+                </div>
+            </div>
+        </div>
+        {% empty %}<div class="col-12 text-center">No products found.</div>{% endfor %}
+    </div>
+    <div class="mt-5"><button class="btn btn-outline-warning px-5 py-2 fw-bold rounded-pill">LOAD MORE</button></div>
+</div>
+
+<style>
+.product-card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.product-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1) !important;
+}
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+
+
+<style>
+    .product-card, .brand-box, .combo-card, .date-card, .honey-card { transition: all 0.3s ease; cursor: pointer; }
+    .product-card:hover, .brand-box:hover, .combo-card:hover, .date-card:hover, .honey-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+    .btn-warning { background-color: #f39c12; border-color: #f39c12; }
+    .btn-outline-warning { color: #f39c12; border-color: #f39c12; }
+    .btn-outline-warning:hover { background-color: #f39c12; color: #fff; }
+    .brand-img { max-height: 60px; filter: grayscale(20%); transition: filter 0.3s ease; }
+    .brand-box:hover .brand-img { filter: grayscale(0%); }
+    .dot { width: 8px; height: 8px; border: 1px solid #f39c12; border-radius: 50%; display: inline-block; }
+    .dot.active { background-color: #f39c12; }
+    .rounded-4 { border-radius: 15px !important; }
+    .object-fit-cover { object-fit: cover; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .cat-item { text-align: center; min-width: 110px; }
+    .cat-box { background: white; border-radius: 15px; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; transition: 0.3s; }
+    .cat-box img { width: 60px; height: 60px; object-fit: contain; }
+    .cat-item p { font-size: 13px; font-weight: 500; color: #444; }
+    .cat-arrow { position: absolute; top: 40%; width: 32px; height: 32px; background: #f39c12; color: white; border: none; border-radius: 50%; z-index: 10; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer; }
+    .left-arrow { left: -15px; }
+    .right-arrow { right: -15px; }
+    .cat-box:hover { transform: translateY(-5px); border-color: #f39c12 !important; }
+    .custom-nav { width: 40px; height: 40px; background: white; border-radius: 5px; top: 50%; transform: translateY(-50%); opacity: 0.8; color: #f39c12; margin: 0 15px; }
+    .custom-dots button { width: 8px !important; height: 8px !important; border-radius: 50%; background-color: #f39c12 !important; }
+</style>
+
+
+
+<script>
+    // Category scroll functionality
+    const container = document.getElementById('catScrollContainer');
+    const leftBtn = document.getElementById('catScrollLeft');
+    const rightBtn = document.getElementById('catScrollRight');
+    if (container && leftBtn && rightBtn) {
+        leftBtn.addEventListener('click', () => container.scrollBy({ left: -200, behavior: 'smooth' }));
+        rightBtn.addEventListener('click', () => container.scrollBy({ left: 200, behavior: 'smooth' }));
+    }
+</script>
+
+
+
+{% endblock %}

@@ -18,5 +18,5 @@ class ProductImageInline(admin.TabularInline):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductImageInline]
-    # অটো-স্লাগ এর জন্য এটি যোগ করুন
+
     prepopulated_fields = {'product_slug': ('name',)}

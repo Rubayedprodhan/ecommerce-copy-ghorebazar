@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 class Category(models.Model):
     name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='Media/images/category', null=True, blank=True)
 
 
     def __str__(self):
@@ -57,12 +58,18 @@ class Product(models.Model):
     Featured_Categories = models.ForeignKey(Featured_Categories, on_delete=models.CASCADE, null=True, blank=True)
   
     product_slug = models.SlugField(max_length=100, unique=True, null=True, blank=True)
+    def get_save_amount(self):
+        if self.old_price:
+            return self.old_price - self.price
+        return 0
+    
+    def get_save_percent(self):
+        if self.old_price and self.old_price > 0:
+            return ((self.old_price - self.price) / self.old_price) * 100
+        return 0
   #  product_id = models.AutoField(primary_key=True)
 
-    def save(self, *args, **kwargs):
-        if not self.product_slug:
-            self.product_slug = slugify(self.name)
-        super(Product, self).save(*args, **kwargs)
+   
 
    
 
@@ -93,3 +100,14 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"{self.product.name} Gallery Image"
+    
+
+
+
+
+class add_to_cart(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name}"
