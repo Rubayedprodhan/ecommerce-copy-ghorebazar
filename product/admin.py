@@ -9,6 +9,8 @@ admin.site.register(Category)
 admin.site.register(Product_Flag)
 admin.site.register(Featured_Categories)
 
+admin.site.register(Cart)
+admin.site.register(CartItem)
 
 
 class ProductImageInline(admin.TabularInline):

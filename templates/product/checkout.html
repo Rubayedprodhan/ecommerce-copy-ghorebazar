@@ -1,0 +1,239 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Checkout - Ghorer Bazar Clone{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <nav aria-label="breadcrumb" class="text-center mb-4">
+        <h2 class="fw-bold text-dark mb-1">Checkout</h2>
+        <ol class="breadcrumb justify-content-center small">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none text-muted">Home</a></li>
+            <li class="breadcrumb-item text-warning active" aria-current="page">Checkout</li>
+        </ol>
+    </nav>
+
+    {% if not user.is_authenticated %}
+    <div class="alert bg-white border d-flex justify-content-between align-items-center p-3 shadow-sm rounded-3 mb-4">
+        <span class="text-secondary fw-semibold">Have any account? please login or register</span>
+        <div>
+            <a href="{% url 'login' %}" class="btn btn-outline-dark btn-sm px-3 me-2">Login</a>
+            <a href="{% url 'register' %}" class="btn btn-warning text-white btn-sm px-3 fw-bold">Register</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <form action="{% url 'place_order' %}" method="POST" id="checkoutForm">
+        {% csrf_token %}
+        <div class="row g-4">
+            
+            <div class="col-lg-7">
+                
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                    <h5 class="fw-bold border-start border-warning border-3 ps-2 mb-4">Order review</h5>
+                    <div class="table-responsive">
+                        {% for item in cart_items %}
+                        <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3" id="cart-item-{{ item.product.id }}">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="border rounded p-1 bg-light" style="width: 70px; height: 70px;">
+                                    <img src="{{ item.product.image.url }}" class="img-fluid h-100 w-100 object-fit-contain" alt="{{ item.product.name }}">
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-1 small">{{ item.product.name }}</h6>
+                                    <div class="d-flex align-items-center gap-2 mt-2">
+                                        <span class="text-muted small">Qty:</span>
+                                        <div class="input-group input-group-sm" style="max-width: 90px;">
+                                            <button class="btn btn-outline-secondary btn-xs py-0 px-2" type="button" onclick="updateQtyAjax('{{ item.product.id }}', 'decrease')">-</button>
+                                            <input type="text" class="form-control text-center p-0 bg-transparent border-secondary text-dark fw-bold small" id="qty-{{ item.product.id }}" value="{{ item.quantity }}" readonly>
+                                            <button class="btn btn-outline-secondary btn-xs py-0 px-2" type="button" onclick="updateQtyAjax('{{ item.product.id }}', 'increase')">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="fw-bold text-dark" id="total-price-{{ item.product.id }}">৳{{ item.get_total_price }}</span>
+                                <button type="button" class="btn btn-link text-danger p-0" onclick="removeItemAjax('{{ item.product.id }}')">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-3 text-muted">Your cart is empty.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                    <h5 class="fw-bold border-start border-warning border-3 ps-2 mb-4">Shipping Address</h5>
+                    <div class="row g-3">
+                        <div class="col-md-7">
+                            <input type="text" name="full_name" class="form-control bg-light border-0 py-2.5 rounded-3" placeholder="Full Name" value="{{ user.get_full_name|default:'' }}" required>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0 text-secondary fw-semibold small">88</span>
+                                <input type="tel" name="phone" class="form-control bg-light border-0 py-2.5 rounded-end-3" placeholder="Phone Number" value="{{ user.profile.phone|default:'' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <input type="text" name="address" class="form-control bg-light border-0 py-2.5 rounded-3" placeholder="ex: House no. / building / street / area" required>
+                        </div>
+                        <div class="col-md-6">
+                            <select name="district" class="form-select bg-light border-0 py-2.5 rounded-3 text-secondary" id="districtSelect" required>
+                                <option value="" selected disabled>Select District</option>
+                                <option value="Rangpur">Rangpur</option>
+                                <option value="Dhaka">Dhaka</option>
+                                <option value="Chittagong">Chittagong</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <select name="upazila" class="form-select bg-light border-0 py-2.5 rounded-3 text-secondary" id="upazilaSelect" required>
+                                <option value="" selected disabled>Select Upazila</option>
+                                <option value="Mithapukur">Mithapukur</option>
+                                <option value="Rangpur Sadar">Rangpur Sadar</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h6 class="fw-bold border-start border-warning border-3 ps-2 mb-0">Billing Address</h6>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="sameAsShipping" checked>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                    <h5 class="fw-bold border-start border-warning border-3 ps-2 mb-4">Payment method</h5>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="payment-option border rounded-3 p-3 d-flex align-items-center gap-2 justify-content-between cursor-pointer w-100 active">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-money-bill-wave text-success fs-5"></i>
+                                    <span class="small fw-semibold text-dark">Cash On Delivery</span>
+                                </div>
+                                <input type="radio" name="payment_method" value="cod" class="form-check-input m-0" checked>
+                            </label>
+                        </div>
+                        <div class="col-6">
+                            <label class="payment-option border rounded-3 p-3 d-flex align-items-center gap-2 justify-content-between cursor-pointer w-100">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-credit-card text-primary fs-5"></i>
+                                    <span class="small fw-semibold text-dark">Online Payment</span>
+                                </div>
+                                <input type="radio" name="payment_method" value="online" class="form-check-input m-0">
+                            </label>
+                        </div>
+                        <div class="col-12">
+                            <label class="payment-option border rounded-3 p-3 d-flex align-items-center gap-2 justify-content-between cursor-pointer w-100">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="{% static 'images/bkash-logo.png' %}" alt="Bkash" style="height: 20px; object-fit: contain;">
+                                    <span class="small fw-semibold text-dark">Bkash</span>
+                                </div>
+                                <input type="radio" name="payment_method" value="bkash" class="form-check-input m-0">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-4">
+                    <div class="d-flex align-items-center justify-content-between cursor-pointer" data-bs-toggle="collapse" data-bs-target="#couponCollapse">
+                        <h6 class="fw-bold mb-0 text-dark small">Have any coupon or gift voucher?</h6>
+                        <i class="fas fa-chevron-down text-muted small"></i>
+                    </div>
+                    <div class="collapse mt-3" id="couponCollapse">
+                        <div class="input-group">
+                            <input type="text" id="couponCode" class="form-control bg-light border-0 small" placeholder="Enter coupon code">
+                            <button class="btn btn-dark btn-sm px-3" type="button" onclick="applyCouponAjax()">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-secondary small">Sub total</span>
+                        <span class="fw-bold text-dark small" id="subTotal">৳{{ cart_subtotal }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
+                        <span class="text-secondary small">Delivery cost</span>
+                        <span class="fw-bold text-dark small" id="deliveryCost">৳{{ delivery_charge|default:"130.00" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold text-dark fs-6">Total</span>
+                        <span class="fw-extrabold text-dark fs-5" id="grandTotal">৳{{ cart_grand_total }}</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-secondary small fw-semibold mb-1">Special notes <span class="text-muted">(Optional)</span></label>
+                        <textarea name="special_notes" class="form-control bg-light border-0 small" rows="3" maxlength="90" placeholder="0 / 90 characters"></textarea>
+                    </div>
+
+                    <div class="form-check mb-4 text-start">
+                        <input class="form-check-input" type="checkbox" id="termsCheck" required checked>
+                        <label class="form-check-label small text-secondary" for="termsCheck">
+                            I have read and agree to the <a href="#" class="text-warning text-decoration-none">Terms and Conditions</a>, <a href="#" class="text-warning text-decoration-none">Privacy Policy</a> & <a href="#" class="text-warning text-decoration-none">Refund and Return Policy</a>.
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-warning w-100 text-white fw-bold py-2.5 rounded-3 text-uppercase shadow-sm">Place Order</button>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .cursor-pointer { cursor: pointer; }
+    .bg-light { background-color: #f8f9fa !important; }
+    .py-2.5 { padding-top: 0.65rem !important; padding-bottom: 0.65rem !important; }
+    .fw-extrabold { font-weight: 800; }
+    .payment-option {
+        transition: all 0.2s ease;
+        background-color: #fff;
+    }
+    .payment-option:hover {
+        border-color: #f39c12 !important;
+    }
+    .payment-option.active {
+        border-color: #f39c12 !important;
+        background-color: #fff9f0 !important;
+        box-shadow: 0 0 0 1px #f39c12;
+    }
+    .btn-xs {
+        padding: 1px 6px;
+        font-size: 11px;
+    }
+</style>
+
+<script>
+    // Payment Option visual toggle logic
+    document.querySelectorAll('.payment-option input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
+            if(this.checked) {
+                this.closest('.payment-option').classList.add('active');
+            }
+        });
+    });
+
+    // Dummy Quantity Update Ajax function placeholder
+    function updateQtyAjax(productId, action) {
+        console.log(`Updating quantity for product ${productId} to ${action}`);
+        // এখানে আপনার Django Cart logic-এর Ajax কলটি বসিয়ে নেবেন।
+    }
+
+    // Dummy Remove Item Ajax function placeholder
+    function removeItemAjax(productId) {
+        if(confirm('Are you sure you want to remove this item?')) {
+            document.getElementById(`cart-item-${productId}`).remove();
+            // এখানে ড্যাঙ্গো ব্যাকএন্ডে রিমুভ করার ফেচ রিকোয়েস্ট পাঠাবেন।
+        }
+    }
+</script>
+{% endblock %}

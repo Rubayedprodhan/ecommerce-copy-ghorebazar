@@ -1,0 +1,21 @@
+{% extends 'home/base.html' %} <!-- আপনার মেইন বেস টেমপ্লেট অনুযায়ী চেঞ্জ করতে পারেন -->
+
+{% block content %}
+<div class="offcanvas offcanvas-end" tabindex="-1" id="cartDrawer" aria-labelledby="cartDrawerLabel">
+  <div class="offcanvas-header border-b">
+    <h5 class="offcanvas-title" id="cartDrawerLabel">SHOPPING CART</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div id="drawer-cart-items">
+        </div>
+  </div>
+  <div class="offcanvas-footer p-3 border-top">
+    <div class="d-flex justify-content-between mb-3">
+        <span>Total:</span>
+        <strong id="drawer-grand-total">৳0.00</strong>
+    </div>
+    <a href="#" class="btn btn-warning w-100 py-2 text-white fw-bold">CHECKOUT</a>
+  </div>
+</div>
+{% endblock %}
