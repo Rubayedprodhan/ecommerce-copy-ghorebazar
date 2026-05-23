@@ -435,7 +435,36 @@
         rightBtn.addEventListener('click', () => container.scrollBy({ left: 200, behavior: 'smooth' }));
     }
 
-    // ১. Buy Now এর জন্য স্পেশাল ফাংশন (কার্টে অ্যাড করে ডিরেক্ট চেকআউট পেজে নিয়ে যাবে)
+    // ১. Add to Cart AJAX (ব্যাকএন্ডে হিট করবে, কাউন্ট বাড়াবে এবং পেজ স্ক্রোল করে উপরে নিয়ে যাবে)
+    function addToCartAjax(productId) {
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        fetch(`/cart/add-ajax/${productId}/`, {
+            method: 'POST',
+            headers: { 
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // ক্লিক করার পর ইউজারকে স্মুথলি পেজের একদম উপরে নেভবারে নিয়ে যাবে
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                // হেডারে থাকা কার্ট কাউন্ট ব্যাজ আপডেট
+                const cartCountBadge = document.getElementById('cart-count');
+                if (cartCountBadge && data.cart_count !== undefined) {
+                    cartCountBadge.innerText = data.cart_count;
+                }
+            } else {
+                console.error('Failed to add product to cart:', data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // ২. Buy Now এর জন্য স্পেশাল ফাংশন (কার্টে অ্যাড করে ডিরেক্ট চেকআউট পেজে নিয়ে যাবে)
     function buyNowAjax(productId) {
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         
@@ -451,6 +480,68 @@
         })
         .catch(error => console.error('Error:', error));
     }
+
+    // ৩. কার্ট সাইডবারের ভেতরের HTML ডাইনামিকালি আপডেট করার মূল ফাংশন
+    function renderCartSidebar(data) {
+        const cartItemsContainer = document.getElementById('cart-items-container');
+        const emptyCartMessage = document.getElementById('empty-cart-message');
+        const cartTotalAmount = document.getElementById('cart-total-amount');
+        const cartCountBadge = document.getElementById('cart-count');
+
+        // নেভবার কাউন্ট এবং টোটাল অ্যামাউন্ট আপডেট
+        if (cartCountBadge && data.cart_count !== undefined) {
+            cartCountBadge.innerText = data.cart_count;
+        }
+        if (cartTotalAmount && data.cart_total !== undefined) {
+            cartTotalAmount.innerText = data.cart_total;
+        }
+
+        if (cartItemsContainer) {
+            cartItemsContainer.innerHTML = ''; // আগের বাসি ডাটা ক্লিন করা
+
+            if (data.cart_items && data.cart_items.length > 0) {
+                if (emptyCartMessage) emptyCartMessage.style.display = 'none';
+
+                // ব্যাকএন্ড থেকে আসা আইটেম লুপ ঘুরিয়ে সাইডবারে পুশ করা
+                data.cart_items.forEach(item => {
+                    const productHTML = `
+                        <div class="d-flex align-items-center justify-content-between mb-3 p-2 border rounded bg-light">
+                            <div class="d-flex align-items-center gap-2">
+                                ${item.image_url ? `<img src="${item.image_url}" alt="${item.product_name}" style="width: 40px; height: 40px; object-fit: contain;" class="rounded">` : ''}
+                                <div>
+                                    <h6 class="mb-0 small fw-bold text-dark">${item.product_name}</h6>
+                                    <small class="text-success fw-bold">৳ ${item.price} ${item.quantity > 1 ? 'x ' + item.quantity : ''}</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm text-danger border-0" onclick="alert('Delete handling logic here')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    `;
+                    cartItemsContainer.insertAdjacentHTML('beforeend', productHTML);
+                });
+            } else {
+                if (emptyCartMessage) emptyCartMessage.style.display = 'block';
+            }
+        }
+    }
+
+    // ৪. মেইন অবজেক্ট ইভেন্ট: যখনই ইউজার নেভবারের কার্ট আইকনে ক্লিক করে সাইডবার ওপেন করবে
+    document.addEventListener('DOMContentLoaded', function () {
+        const cartSidebarEl = document.getElementById('cartSidebar');
+        
+        if (cartSidebarEl) {
+            // বুটস্ট্র্যাপ অফক্যানভাস ইভেন্ট লিসেনার: আপনার urls.py এর fetch-drawer ইউআরএল এ হিট করবে
+            cartSidebarEl.addEventListener('show.bs.offcanvas', function () {
+                fetch('/cart/fetch-drawer/') 
+                    .then(response => response.json())
+                    .then(data => {
+                        renderCartSidebar(data); // ডাটা রি-রেন্ডার করবে
+                    })
+                    .catch(error => console.error('Error fetching cart data:', error));
+            });
+        }
+    });
 </script>
 
 {% endblock %}

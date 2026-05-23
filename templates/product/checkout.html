@@ -36,7 +36,7 @@
                         <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3" id="cart-item-{{ item.product.id }}">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="border rounded p-1 bg-light" style="width: 70px; height: 70px;">
-                                    <img src="{{ item.product.image.url }}" class="img-fluid h-100 w-100 object-fit-contain" alt="{{ item.product.name }}">
+                                    <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'images/default-product.png' %}{% endif %}" class="img-fluid h-100 w-100 object-fit-contain" alt="{{ item.product.name }}">
                                 </div>
                                 <div>
                                     <h6 class="fw-bold text-dark mb-1 small">{{ item.product.name }}</h6>
@@ -51,14 +51,17 @@
                                 </div>
                             </div>
                             <div class="d-flex align-items-center gap-3">
-                                <span class="fw-bold text-dark" id="total-price-{{ item.product.id }}">৳{{ item.get_total_price }}</span>
+                                <span class="fw-bold text-dark" id="total-price-{{ item.product.id }}">৳{{ item.total_price }}</span>
                                 <button type="button" class="btn btn-link text-danger p-0" onclick="removeItemAjax('{{ item.product.id }}')">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
                         </div>
                         {% empty %}
-                        <div class="text-center py-3 text-muted">Your cart is empty.</div>
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-shopping-basket d-block fs-2 text-secondary mb-2 opacity-50"></i>
+                            Your cart is empty.
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
@@ -78,19 +81,28 @@
                         <div class="col-12">
                             <input type="text" name="address" class="form-control bg-light border-0 py-2.5 rounded-3" placeholder="ex: House no. / building / street / area" required>
                         </div>
+                        
                         <div class="col-md-6">
                             <select name="district" class="form-select bg-light border-0 py-2.5 rounded-3 text-secondary" id="districtSelect" required>
                                 <option value="" selected disabled>Select District</option>
-                                <option value="Rangpur">Rangpur</option>
-                                <option value="Dhaka">Dhaka</option>
+                                <option value="Bagerhat">Bagerhat</option>
+                                <option value="Barisal">Barisal</option>
+                                <option value="Bogra">Bogra</option>
                                 <option value="Chittagong">Chittagong</option>
-                            </select>
+                                <option value="Comilla">Comilla</option>
+                                <option value="Dhaka">Dhaka</option>
+                                <option value="Dinajpur">Dinajpur</option>
+                                <option value="Khulna">Khulna</option>
+                                <option value="Mymensingh">Mymensingh</option>
+                                <option value="Rajshahi">Rajshahi</option>
+                                <option value="Rangpur">Rangpur</option>
+                                <option value="Sylhet">Sylhet</option>
+                                </select>
                         </div>
+                        
                         <div class="col-md-6">
-                            <select name="upazila" class="form-select bg-light border-0 py-2.5 rounded-3 text-secondary" id="upazilaSelect" required>
+                            <select name="upazila" class="form-select bg-light border-0 py-2.5 rounded-3 text-secondary" id="upazilaSelect" required disabled>
                                 <option value="" selected disabled>Select Upazila</option>
-                                <option value="Mithapukur">Mithapukur</option>
-                                <option value="Rangpur Sadar">Rangpur Sadar</option>
                             </select>
                         </div>
                     </div>
@@ -124,32 +136,18 @@
                             <label class="payment-option border rounded-3 p-3 d-flex align-items-center gap-2 justify-content-between cursor-pointer w-100">
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="fas fa-credit-card text-primary fs-5"></i>
-                                    <span class="small fw-semibold text-dark">Online Payment</span>
+                                    <span class="small fw-semibold text-dark">SSLCommerz (Online)</span>
                                 </div>
-                                <input type="radio" name="payment_method" value="online" class="form-check-input m-0">
+                                <input type="radio" name="payment_method" value="sslcommerz" class="form-check-input m-0">
                             </label>
                         </div>
                         <div class="col-12">
                             <label class="payment-option border rounded-3 p-3 d-flex align-items-center gap-2 justify-content-between cursor-pointer w-100">
                                 <div class="d-flex align-items-center gap-2">
-                                    <img src="{% static 'images/bkash-logo.png' %}" alt="Bkash" style="height: 20px; object-fit: contain;">
-                                    <span class="small fw-semibold text-dark">Bkash</span>
+                                    <i class="font-bold text-danger fab fa-kickstarter fs-5"></i> <span class="small fw-semibold text-dark">bKash Payment</span>
                                 </div>
                                 <input type="radio" name="payment_method" value="bkash" class="form-check-input m-0">
                             </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-4">
-                    <div class="d-flex align-items-center justify-content-between cursor-pointer" data-bs-toggle="collapse" data-bs-target="#couponCollapse">
-                        <h6 class="fw-bold mb-0 text-dark small">Have any coupon or gift voucher?</h6>
-                        <i class="fas fa-chevron-down text-muted small"></i>
-                    </div>
-                    <div class="collapse mt-3" id="couponCollapse">
-                        <div class="input-group">
-                            <input type="text" id="couponCode" class="form-control bg-light border-0 small" placeholder="Enter coupon code">
-                            <button class="btn btn-dark btn-sm px-3" type="button" onclick="applyCouponAjax()">Apply</button>
                         </div>
                     </div>
                 </div>
@@ -161,7 +159,7 @@
                     </div>
                     <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
                         <span class="text-secondary small">Delivery cost</span>
-                        <span class="fw-bold text-dark small" id="deliveryCost">৳{{ delivery_charge|default:"130.00" }}</span>
+                        <span class="fw-bold text-dark small" id="deliveryCost">৳{{ delivery_charge }}</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <span class="fw-bold text-dark fs-6">Total</span>
@@ -176,11 +174,11 @@
                     <div class="form-check mb-4 text-start">
                         <input class="form-check-input" type="checkbox" id="termsCheck" required checked>
                         <label class="form-check-label small text-secondary" for="termsCheck">
-                            I have read and agree to the <a href="#" class="text-warning text-decoration-none">Terms and Conditions</a>, <a href="#" class="text-warning text-decoration-none">Privacy Policy</a> & <a href="#" class="text-warning text-decoration-none">Refund and Return Policy</a>.
+                            I have read and agree to the <a href="#" class="text-warning text-decoration-none">Terms and Conditions</a>.
                         </label>
                     </div>
 
-                    <button type="submit" class="btn btn-warning w-100 text-white fw-bold py-2.5 rounded-3 text-uppercase shadow-sm">Place Order</button>
+                    <button type="submit" id="submitOrderBtn" class="btn btn-warning w-100 text-white fw-bold py-2.5 rounded-3 text-uppercase shadow-sm">Place Order</button>
                 </div>
 
             </div>
@@ -193,46 +191,81 @@
     .bg-light { background-color: #f8f9fa !important; }
     .py-2.5 { padding-top: 0.65rem !important; padding-bottom: 0.65rem !important; }
     .fw-extrabold { font-weight: 800; }
-    .payment-option {
-        transition: all 0.2s ease;
-        background-color: #fff;
-    }
-    .payment-option:hover {
-        border-color: #f39c12 !important;
-    }
-    .payment-option.active {
-        border-color: #f39c12 !important;
-        background-color: #fff9f0 !important;
-        box-shadow: 0 0 0 1px #f39c12;
-    }
-    .btn-xs {
-        padding: 1px 6px;
-        font-size: 11px;
-    }
+    .payment-option { transition: all 0.2s ease; background-color: #fff; }
+    .payment-option:hover, .payment-option.active { border-color: #f39c12 !important; }
+    .payment-option.active { background-color: #fff9f0 !important; box-shadow: 0 0 0 1px #f39c12; }
+    .btn-xs { padding: 1px 6px; font-size: 11px; }
 </style>
 
 <script>
-    // Payment Option visual toggle logic
+    const checkoutForm = document.getElementById('checkoutForm');
+    const submitOrderBtn = document.getElementById('submitOrderBtn');
+
+    // ডাইনামিক জ্যাঙ্গো ইউআরএল রাউটিং ইনজেকশন
+    const codUrl = "{% url 'place_order' %}";
+    const sslCommerzUrl = "{% url 'sslcommerz_initiate' %}"; 
+    const bkashUrl = "{% url 'bkash_initiate' %}";           
+
     document.querySelectorAll('.payment-option input[type="radio"]').forEach(radio => {
         radio.addEventListener('change', function() {
             document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
             if(this.checked) {
                 this.closest('.payment-option').classList.add('active');
+                
+                if (this.value === 'cod') {
+                    checkoutForm.action = codUrl;
+                    submitOrderBtn.innerText = "Place Order";
+                } else if (this.value === 'sslcommerz') {
+                    checkoutForm.action = sslCommerzUrl;
+                    submitOrderBtn.innerText = "Pay via SSLCommerz";
+                } else if (this.value === 'bkash') {
+                    checkoutForm.action = bkashUrl;
+                    submitOrderBtn.innerText = "Proceed to bKash Pay";
+                }
             }
         });
     });
 
-    // Dummy Quantity Update Ajax function placeholder
+    // ডিস্ট্রিক্ট ও উপজেলা ম্যাপিং স্ক্রিপ্ট
+    const upazilaData = {
+        "Rangpur": ["Badarganj", "Gangachara", "Kaunia", "Mithapukur", "Pirgachha", "Pirganj", "Rangpur Sadar", "Taraganj"],
+        "Dhaka": ["Dhamrai", "Dohar", "Keraniganj", "Nawabganj", "Savar", "Tejgaon Circle"],
+        "Chittagong": ["Anwara", "Banshkhali", "Boalkhali", "Fatikchhari", "Hathazari", "Patiya", "Raozan", "Satkania", "Sitakunda"]
+    };
+
+    const districtSelect = document.getElementById('districtSelect');
+    const upazilaSelect = document.getElementById('upazilaSelect');
+
+    districtSelect.addEventListener('change', function() {
+        const selectedDistrict = this.value;
+        upazilaSelect.innerHTML = '<option value="" selected disabled>Select Upazila</option>';
+        upazilaSelect.disabled = false;
+        
+        if (upazilaData[selectedDistrict]) {
+            upazilaData[selectedDistrict].forEach(upazila => {
+                const option = document.createElement('option');
+                option.value = upazila;
+                option.textContent = upazila;
+                upazilaSelect.appendChild(option);
+            });
+        } else {
+            ["Sadar Upazila", "Option 1", "Option 2"].forEach(upazila => {
+                const option = document.createElement('option');
+                option.value = upazila;
+                option.textContent = upazila;
+                upazilaSelect.appendChild(option);
+            });
+        }
+    });
+
     function updateQtyAjax(productId, action) {
         console.log(`Updating quantity for product ${productId} to ${action}`);
-        // এখানে আপনার Django Cart logic-এর Ajax কলটি বসিয়ে নেবেন।
     }
 
-    // Dummy Remove Item Ajax function placeholder
     function removeItemAjax(productId) {
         if(confirm('Are you sure you want to remove this item?')) {
-            document.getElementById(`cart-item-${productId}`).remove();
-            // এখানে ড্যাঙ্গো ব্যাকএন্ডে রিমুভ করার ফেচ রিকোয়েস্ট পাঠাবেন।
+            const element = document.getElementById(`cart-item-${productId}`);
+            if(element) element.remove();
         }
     }
 </script>

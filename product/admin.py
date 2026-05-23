@@ -11,7 +11,7 @@ admin.site.register(Featured_Categories)
 
 admin.site.register(Cart)
 admin.site.register(CartItem)
-
+admin.site.register(Order)
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage

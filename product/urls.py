@@ -24,4 +24,18 @@ urlpatterns = [
 
     path('checkout/', views.checkout_and_order, name='checkout_and_order'),
     path('place-order/', views.place_order, name='place_order'),
+    path('cart/fetch-drawer/', views.fetch_drawer_cart, name='fetch_drawer_cart'),
+
+
+    path('checkout/place-order/', views.place_order, name='place_order'),
+    
+    # ২. SSLCommerz পেমেন্ট গেটওয়ে ইনিশিয়েট রুট
+    path('payment/sslcommerz/initiate/', views.sslcommerz_initiate, name='sslcommerz_initiate'),
+    
+    # ৩. bKash পেমেন্ট গেটওয়ে ইনিশিয়েট ও কাস্টম পেজ রুট
+    path('payment/bkash/initiate/', views.bkash_initiate, name='bkash_initiate'),
+    path('payment/bkash/page/', views.bkash_payment_page, name='bkash_payment_page'),
+    
+    # ফাইনাল অর্ডার সাকসেস বা থ্যাঙ্ক ইউ পেজ
+    path('order/success/', views.order_success, name='order_success'),
 ]

@@ -1,0 +1,211 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Order Success - Ghorer Bazar Clone{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            
+            <div class="card border-0 shadow-sm rounded-4 p-5 mb-4 bg-white position-relative overflow-hidden">
+                <div class="success-bg-gradient position-absolute top-0 start-0 w-100" style="height: 6px; background: linear-gradient(90deg, #2ecc71, #27ae60);"></div>
+                
+                <div class="d-inline-flex align-items-center justify-content-center bg-light-success rounded-circle mb-4 animate-bounce" style="width: 80px; height: 80px;">
+                    <i class="fas fa-check-circle text-success fs-1"></i>
+                </div>
+                
+                <h2 class="fw-extrabold text-dark mb-2">Thank You For Your Order!</h2>
+                <p class="text-secondary mb-4 mx-auto" style="max-width: 500px;">
+                    Your order has been placed successfully. We are preparing your Package with care and will deliver it to your doorstep as soon as possible.
+                </p>
+                
+                <div class="d-inline-block bg-light border border-secondary border-opacity-10 px-4 py-2 rounded-3 mb-2">
+                    <span class="text-secondary small fw-medium">Order ID:</span>
+                    <span class="fw-bold text-dark ms-1">#{{ order.order_id|default:"GB-839201" }}</span>
+                </div>
+                
+                <div class="text-muted small">
+                    Estimated Delivery: <span class="fw-semibold text-dark">{{ estimated_delivery|default:"2-3 Business Days" }}</span>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white text-start">
+                <h6 class="fw-bold text-dark mb-4 border-start border-success border-3 ps-2">Order Status</h6>
+                <div class="row g-2 text-center position-relative">
+                    <div class="position-absolute top-50 start-0 translate-middle-y w-100 d-none d-md-block px-5" style="z-index: 1;">
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 25%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-3 position-relative" style="z-index: 2;">
+                        <div class="timeline-dot bg-success text-white rounded-circle mx-auto d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;">
+                            <i class="fas fa-shopping-basket small"></i>
+                        </div>
+                        <p class="small fw-bold text-dark mt-2 mb-0">Placed</p>
+                    </div>
+                    <div class="col-3 position-relative" style="z-index: 2;">
+                        <div class="timeline-dot bg-white border border-2 border-secondary border-opacity-20 text-muted rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="fas fa-box small"></i>
+                        </div>
+                        <p class="small fw-semibold text-muted mt-2 mb-0">Processing</p>
+                    </div>
+                    <div class="col-3 position-relative" style="z-index: 2;">
+                        <div class="timeline-dot bg-white border border-2 border-secondary border-opacity-20 text-muted rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="fas fa-truck small"></i>
+                        </div>
+                        <p class="small fw-semibold text-muted mt-2 mb-0">Shipped</p>
+                    </div>
+                    <div class="col-3 position-relative" style="z-index: 2;">
+                        <div class="timeline-dot bg-white border border-2 border-secondary border-opacity-20 text-muted rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="fas fa-home small"></i>
+                        </div>
+                        <p class="small fw-semibold text-muted mt-2 mb-0">Delivered</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-5 bg-white text-start">
+                <h5 class="fw-bold text-dark mb-4 border-start border-warning border-3 ps-2">Order Summary</h5>
+                
+                <div class="table-responsive mb-3">
+                    <table class="table table-borderless align-middle mb-0">
+                        <thead>
+                            <tr class="border-bottom text-secondary small">
+                                <th scope="col" class="ps-0">Product</th>
+                                <th scope="col" class="text-center">Qty</th>
+                                <th scope="col" class="text-end pe-0">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr class="border-bottom border-light">
+                                <td class="ps-0 py-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="border rounded p-1 bg-light" style="width: 50px; height: 50px; min-width: 50px;">
+                                            <img src="{{ item.product.image.url }}" class="img-fluid h-100 w-100 object-fit-contain" alt="{{ item.product.name }}">
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold text-dark mb-0 small text-truncate-1">{{ item.product.name }}</h6>
+                                            <span class="text-muted style-sku">৳{{ item.price }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center fw-semibold text-secondary small py-3">{{ item.quantity }}</td>
+                                <td class="text-end pe-0 fw-bold text-dark py-3">৳{{ item.get_total_price }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr class="border-bottom border-light">
+                                <td class="ps-0 py-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="border rounded p-1 bg-light" style="width: 50px; height: 50px; min-width: 50px;">
+                                            <img src="{% static 'images/bannar1.jpg' %}" class="img-fluid h-100 w-100 object-fit-contain" alt="Product Name">
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold text-dark mb-0 small">Premium Khalisa Honey (৫০০ গ্রাম)</h6>
+                                            <span class="text-muted small">৳৬৫0</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center fw-semibold text-secondary small py-3">1</td>
+                                <td class="text-end pe-0 fw-bold text-dark py-3">৳৬৫0</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-light rounded-3 p-3 mb-3">
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-secondary">Subtotal:</span>
+                        <span class="fw-semibold text-dark">৳{{ order.subtotal|default:"650.00" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-secondary">Delivery Charge:</span>
+                        <span class="fw-semibold text-dark">৳{{ order.delivery_charge|default:"130.00" }}</span>
+                    </div>
+                    {% if order.coupon_discount %}
+                    <div class="d-flex justify-content-between mb-2 small text-success">
+                        <span>Coupon Discount:</span>
+                        <span>-৳{{ order.coupon_discount }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="d-flex justify-content-between pt-2 border-top border-secondary border-opacity-10">
+                        <span class="fw-bold text-dark">Grand Total:</span>
+                        <span class="fw-extrabold text-warning fs-5">৳{{ order.grand_total|default:"780.00" }}</span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-1">
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 h-100 bg-white">
+                            <span class="text-secondary small fw-bold text-uppercase d-block mb-2" style="letter-spacing: 0.5px;">Delivery Details</span>
+                            <h6 class="fw-bold text-dark mb-1 small">{{ order.full_name|default:user.get_full_name }}</h6>
+                            <p class="text-secondary small mb-1"><i class="fas fa-phone-alt me-1 text-muted"></i> +88{{ order.phone|default:"017XXXXXXXX" }}</p>
+                            <p class="text-secondary small mb-0"><i class="fas fa-map-marker-alt me-1 text-muted"></i> {{ order.address|default:"Rangpur Sadar, Rangpur" }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 h-100 bg-white">
+                            <span class="text-secondary small fw-bold text-uppercase d-block mb-2" style="letter-spacing: 0.5px;">Payment Info</span>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                {% if order.payment_method == 'cod' or not order.payment_method %}
+                                    <i class="fas fa-money-bill-wave text-success fs-5"></i>
+                                    <h6 class="fw-bold text-dark mb-0 small">Cash On Delivery</h6>
+                                {% elif order.payment_method == 'sslcommerz' %}
+                                    <i class="fas fa-credit-card text-primary fs-5"></i>
+                                    <h6 class="fw-bold text-dark mb-0 small">SSLCommerz Online</h6>
+                                {% else %}
+                                    <i class="fas fa-mobile-alt text-danger fs-5"></i>
+                                    <h6 class="fw-bold text-dark mb-0 small">bKash Mobile Wallet</h6>
+                                {% endif %}
+                            </div>
+                            <span class="badge {% if order.is_paid %}bg-light-success text-success{% else %}bg-light-warning text-warning{% endif %} fw-bold px-2 py-1.5 small">
+                                {% if order.is_paid %}Paid Successfully{% else %}Payment Pending (COD){% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                <a href="{% url 'home' %}" class="btn btn-warning px-5 py-2.5 text-white fw-bold rounded-3 shadow-sm text-uppercase">
+                    <i class="fas fa-shopping-bag me-2"></i> Continue Shopping
+                </a>
+                <a href="#" class="btn btn-outline-dark px-5 py-2.5 fw-bold rounded-3 text-uppercase">
+                    <i class="fas fa-file-invoice me-2"></i> View All Orders
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-light-success { background-color: #e8f8f0 !important; }
+    .bg-light-warning { background-color: #fff9f0 !important; }
+    .text-success { color: #2ecc71 !important; }
+    .fw-extrabold { font-weight: 800; }
+    .text-truncate-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+    
+    /* Elegant Subtle Animation for Success Icon */
+    .animate-bounce {
+        animation: subtleBounce 2s infinite;
+    }
+    @keyframes subtleBounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+    }
+
+    /* Horizontal Line connector fix for timeline */
+    .timeline-dot {
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-warning { background-color: #f39c12; border-color: #f39c12; }
+    .btn-warning:hover { background-color: #e67e22; border-color: #e67e22; color: #fff; }
+</style>
+{% endblock %}

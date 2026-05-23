@@ -1,0 +1,166 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}bKash Checkout - Ghorer Bazar Clone{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden position-relative bg-white">
+                
+                <div class="bkash-header p-4 text-center text-white d-flex flex-column align-items-center justify-content-center position-relative" style="background-color: #e2136e;">
+                    <img src="https://www.logo.wine/a/logo/BKash/BKash-Logo.wine.svg" alt="bKash Logo" class="img-fluid" style="height: 70px; filter: brightness(0) invert(1); margin-bottom: -10px; margin-top: -10px;">
+                    <p class="small opacity-75 mb-0">Merchant: <strong class="text-white">Ghorer Bazar Clone</strong></p>
+                </div>
+
+                <div class="bg-light p-3 d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-10 px-4">
+                    <div class="d-flex align-items-center gap-2 text-secondary small">
+                        <i class="fas fa-shopping-bag text-muted"></i>
+                        <span>Invoice No: <strong class="text-dark">#GB-{{ request.session.session_key|slice:":6"|upper }}</strong></span>
+                    </div>
+                    <div class="text-end">
+                        <span class="text-muted small d-block" style="font-size: 11px;">Amount to Pay</span>
+                        <h4 class="fw-extrabold mb-0" style="color: #e2136e;">৳{{ order.grand_total|default:"780.00" }}</h4>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 text-center">
+                    
+                    <div class="alert py-2 rounded-3 mb-4 d-flex align-items-center justify-content-center gap-2 bg-light text-secondary border-0 small">
+                        <i class="fas fa-hourglass-half text-warning animate-spin"></i>
+                        <span>Session expires in: <strong class="text-dark" id="timer">04:59</strong> mins</span>
+                    </div>
+
+                    <form action="{% url 'order_success' %}" method="POST" id="bkashGatewayForm">
+                        {% csrf_token %}
+                        
+                        <div id="step-wallet" class="payment-step">
+                            <label class="form-label text-start d-block fw-bold text-dark small mb-2">Your bKash Account Number</label>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text bg-light border-end-0 border-secondary border-opacity-25 text-secondary fw-bold">+88</span>
+                                <input type="tel" class="form-control bg-light border-start-0 border-secondary border-opacity-25 text-dark fw-bold py-2.5 rounded-end-3 fs-5" id="bkashNumber" name="bkash_number" placeholder="01XXXXXXXXX" maxlength="11" required>
+                            </div>
+                            <p class="text-muted small text-start mb-4" style="font-size: 12px; line-height: 1.5;">
+                                By clicking **Proceed**, you agree to the terms and conditions of bKash payment gateway agreement.
+                            </p>
+                        </div>
+
+                        <div id="step-otp" class="payment-step d-none">
+                            <label class="form-label text-start d-block fw-bold text-dark small mb-2">Enter 6-digit Verification Code (OTP)</label>
+                            <input type="text" class="form-control bg-light text-center border-secondary border-opacity-25 text-dark fw-extrabold py-2.5 rounded-3 fs-4 tracking-widest mb-2" id="bkashOtp" placeholder="XXXXXX" maxlength="6">
+                            <div class="d-flex justify-content-between align-items-center px-1 mb-4">
+                                <span class="text-muted small">Didn't receive OTP?</span>
+                                <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 small" style="color: #e2136e;">Resend Code</button>
+                            </div>
+                        </div>
+
+                        <div id="step-pin" class="payment-step d-none">
+                            <label class="form-label text-start d-block fw-bold text-dark small mb-2">Enter 5-digit bKash PIN</label>
+                            <input type="password" class="form-control bg-light text-center border-secondary border-opacity-25 text-dark fw-extrabold py-2.5 rounded-3 fs-3 mb-4" id="bkashPin" placeholder="•••••" maxlength="5">
+                        </div>
+
+                        <div class="d-flex gap-3 pt-2">
+                            <a href="{% url 'checkout_and_order' %}" class="btn btn-outline-secondary w-50 py-2.5 fw-bold rounded-3 text-uppercase small" style="font-size: 13px;">Close</a>
+                            <button type="button" id="bkashNextBtn" class="btn text-white w-50 py-2.5 fw-bold rounded-3 text-uppercase shadow-sm small" style="background-color: #e2136e; font-size: 13px;">Proceed</button>
+                        </div>
+                    </form>
+
+                </div>
+
+                <div class="card-footer bg-light border-0 py-3 text-center">
+                    <span class="text-secondary small d-inline-flex align-items-center gap-1" style="font-size: 11px;">
+                        <i class="fas fa-shield-alt text-success"></i> 124-bit Secured bKash Merchant Encryption System
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .fw-extrabold { font-weight: 800; }
+    .py-2.5 { padding-top: 0.65rem !important; padding-bottom: 0.65rem !important; }
+    .tracking-widest { letter-spacing: 0.4em; }
+    
+    /* Input Style Tweaks */
+    .form-control:focus {
+        border-color: #e2136e !important;
+        box-shadow: 0 0 0 0.25rem rgba(226, 19, 110, 0.15) !important;
+    }
+    
+    /* Animation Framework spin for loader */
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .animate-spin {
+        animation: spin 2s linear infinite;
+    }
+</style>
+
+<script>
+    // Real-time Countdown Timer Setup
+    let time = 299; // 5 Minutes in seconds
+    const timerElement = document.getElementById('timer');
+    
+    const countdown = setInterval(() => {
+        let minutes = Math.floor(time / 60);
+        let seconds = time % 60;
+        
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+        
+        timerElement.innerText = `${minutes}:${seconds}`;
+        time--;
+        
+        if (time < 0) {
+            clearInterval(countdown);
+            alert('bKash Payment Gateway timeout. Please try again.');
+            window.location.href = "{% url 'checkout_and_order' %}";
+        }
+    }, 1000);
+
+    // Multi-Step Multi Stage Navigation Simulation for Interface Mock
+    let currentStep = 'wallet';
+    const nextBtn = document.getElementById('bkashNextBtn');
+    const form = document.getElementById('bkashGatewayForm');
+
+    nextBtn.addEventListener('click', function() {
+        if (currentStep === 'wallet') {
+            const walletNum = document.getElementById('bkashNumber').value;
+            if (walletNum.length < 11) {
+                alert('Please enter a valid 11-digit bKash number.');
+                return;
+            }
+            // Transition UI block
+            document.getElementById('step-wallet').classList.add('d-none');
+            document.getElementById('step-otp').classList.remove('d-none');
+            currentStep = 'otp';
+        } 
+        else if (currentStep === 'otp') {
+            const otpNum = document.getElementById('bkashOtp').value;
+            if (otpNum.length < 6) {
+                alert('Please enter the 6-digit verification code sent to your phone.');
+                return;
+            }
+            // Transition UI block
+            document.getElementById('step-otp').classList.add('d-none');
+            document.getElementById('step-pin').classList.remove('d-none');
+            currentStep = 'pin';
+        } 
+        else if (currentStep === 'pin') {
+            const pinNum = document.getElementById('bkashPin').value;
+            if (pinNum.length < 5) {
+                alert('Please input your 5-digit security pin.');
+                return;
+            }
+            // All verified, dispatch processing post submit to success landing
+            form.submit();
+        }
+    });
+</script>
+{% endblock %}

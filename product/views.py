@@ -4,14 +4,11 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django.utils.crypto import get_random_string
-from .models import * # আপনার সব মডেল একসাথে ইম্পোর্ট করা হলো
+from .models import * 
 from decimal import Decimal
-# ==========================================
-# ১. হোম এবং প্রোডাক্ট পেজ ভিউজ (Home & Products)
-# ==========================================
+
 
 def home(request):
-    # সেকশন অনুযায়ী প্রোডাক্ট ফিল্টার
     top_selling = Product.objects.filter(section='top_selling')
     all_natural = Product.objects.filter(section='all_natural')
     exclusive_combo = Product.objects.filter(section='exclusive_combo')
@@ -313,3 +310,117 @@ def place_order(request):
         return render(request, 'order_success.html', {'user': current_user, 'order': order})
 
     return redirect('checkout_and_order')
+
+
+def fetch_drawer_cart(request):
+    cart = get_or_create_cart(request)
+    cart_items_qs = cart.items.all().order_by('id')
+    cart_items = []
+    total_quantity = 0
+    total_price = Decimal('0.00')
+
+    for item in cart_items_qs:
+        cart_items.append({
+            'product_name': item.product.name,
+            'price': str(item.product.discount_price if item.product.discount_price else item.product.price),
+            'quantity': item.quantity,
+        })
+        total_quantity += item.quantity
+        total_price += item.total_price
+
+    return JsonResponse({
+        'cart_count': total_quantity, # মোট প্রোডাক্ট সংখ্যা (যেমন: ৩)
+        'cart_total': str(total_price),    # মোট টাকা (যেমন: ১৫০০)
+        'cart_items': cart_items       # প্রোডাক্টগুলোর লিস্ট
+    })
+
+
+
+def checkout_and_order(request):
+    cart_items = []  
+    cart_subtotal = 650.00
+    delivery_charge = 130.00
+    cart_grand_total = cart_subtotal + delivery_charge
+    
+    context = {
+        'cart_items': cart_items,
+        'cart_subtotal': cart_subtotal,
+        'delivery_charge': delivery_charge,
+        'cart_grand_total': cart_grand_total,
+    }
+    return render(request, 'product/checkout.html', context)
+
+
+
+
+
+def place_order(request):
+    """১. ক্যাশ অন ডেলিভারি (COD) এর মাধ্যমে ডিরেক্ট অর্ডার প্লেস করার ভিউ"""
+    if request.method == "POST":
+        full_name = request.POST.get('full_name')
+        phone = request.POST.get('phone')
+        address = request.POST.get('address')
+        district = request.POST.get('district')
+        upazila = request.POST.get('upazila')
+        special_notes = request.POST.get('special_notes')
+        
+       
+        return redirect('order_success')
+        
+    return redirect('checkout_and_order')
+
+
+def sslcommerz_initiate(request):
+    """২. SSLCommerz পেমেন্ট গেটওয়ে ইনিশিয়েট করার ভিউ"""
+    if request.method == "POST":
+        # ফর্ম থেকে ইউজার ও অ্যামাউন্ট ডাটা রিসিভ করা
+        full_name = request.POST.get('full_name')
+        phone = request.POST.get('phone')
+        grand_total = request.POST.get('grand_total') # বা সেশন/কার্ট থেকে টোটাল ক্যালকুলেট করুন
+        
+        # SSLCommerz এর ক্রেডেনশিয়াল ও প্যারামিটার সেটআপ (নমুনা)
+        """
+        settings = { 'store_id': 'your_store_id', 'store_pass': 'your_pass', 'issandbox': True }
+        sslcommez = SSLCommerz(settings)
+        post_body = {}
+        post_body['total_amount'] = grand_total
+        post_body['currency'] = "BDT"
+        post_body['tran_id'] = "TRAN_12345" # ইউনিক ট্রানজেকশন আইডি
+        post_body['success_url'] = "http://127.0.0.1:8000/payment/sslcommerz/success/"
+        post_body['fail_url'] = "http://127.0.0.1:8000/payment/sslcommerz/fail/"
+        
+        response = sslcommez.createSession(post_body)
+        return redirect(response['GatewayPageURL']) # সরাসরি SSLCommerz পেমেন্ট পেজে রিডাইরেক্ট করবে
+        """
+        
+        # ডেভেলপমেন্ট টেস্টের জন্য ডিরেক্ট সাকসেস বা ডামি গেটওয়ে রিডাইরেক্ট করছি
+        return redirect('order_success')
+    return redirect('checkout_and_order')
+
+
+def bkash_initiate(request):
+    """৩. bKash পেমেন্ট সিলেক্ট করলে আরেকটি ডেডিকেটেড পেজে নিয়ে যাওয়ার ভিউ"""
+    if request.method == "POST":
+        # ফর্মের ডাটা সেশনে রেখে দেওয়া বা টেম্পোরারি অর্ডার ক্রিয়েট করা যাতে bKash পেজে শো করা যায়
+        request.session['bkash_customer_name'] = request.POST.get('full_name')
+        request.session['bkash_phone'] = request.POST.get('phone')
+        request.session['bkash_address'] = f"{request.POST.get('address')}, {request.POST.get('upazila')}, {request.POST.get('district')}"
+        
+        return redirect('bkash_payment_page')
+    return redirect('checkout_and_order')
+
+
+def bkash_payment_page(request):
+    """bKash এর জন্য কাস্টমাইজড আলাদা পেমেন্ট পেজ"""
+    context = {
+        'customer_name': request.session.get('bkash_customer_name'),
+        'phone': request.session.get('bkash_phone'),
+        'address': request.session.get('bkash_address'),
+    }
+    return render(request, 'product/bkash_payment.html', context)
+
+
+def order_success(request):
+    """অর্ডার সফল হওয়ার পর সাকসেস থ্যাঙ্ক ইউ পেজ রেন্ডার ভিউ"""
+    # এখানে লাস্ট অর্ডার ট্র্যাকিং ডাটা ডাইনামিকালি পাস করতে পারেন
+    return render(request, 'product/order_success.html')

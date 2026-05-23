@@ -1,5 +1,5 @@
 <!-- Top Header: Logo, Search, and Icons -->
- {% load static %}
+{% load static %}
 <div class="container-fluid py-3 border-bottom bg-white">
     <div class="container">
         <div class="row align-items-center">
@@ -22,24 +22,44 @@
 
             <!-- Icons -->
             <div class="col-md-4 col-6 text-end d-flex justify-content-end align-items-center">
-                <div class="nav-icon mx-2 text-center d-none d-lg-block">
+                
+                <!-- Track Order -->
+                <div class="nav-icon mx-2 text-center d-none d-lg-block" data-bs-toggle="offcanvas" data-bs-target="#trackOrderSidebar" aria-controls="trackOrderSidebar" style="cursor: pointer;">
                     <i class="fas fa-map-marker-alt d-block mb-1"></i>
                     <small style="font-size: 10px;">Track Order</small>
                 </div>
-                <div class="nav-icon mx-2 text-center">
-                    <i class="far fa-user d-block mb-1"></i>
-                    <small style="font-size: 10px;">My Account</small>
+                
+                <!-- My Account -->
+                <div class="nav-icon mx-2 text-center dropdown" style="cursor: pointer;">
+                    <div data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="far fa-user d-block mb-1"></i>
+                        <small style="font-size: 10px;">My Account</small>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end mt-2 shadow-sm border-0">
+                        <li><a class="dropdown-menu-item d-block p-2 text-decoration-none text-dark small" href="#"><i class="fas fa-user-circle me-2 text-muted"></i> My Profile</a></li>
+                        <li><a class="dropdown-menu-item d-block p-2 text-decoration-none text-dark small" href="#"><i class="fas fa-box me-2 text-muted"></i> My Orders</a></li>
+                        <li><a class="dropdown-menu-item d-block p-2 text-decoration-none text-dark small" href="#" data-bs-toggle="offcanvas" data-bs-target="#trackOrderSidebar"><i class="fas fa-truck me-2 text-muted"></i> Track Order</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-menu-item d-block p-2 text-decoration-none text-danger small" href="#"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                    </ul>
                 </div>
-                <div class="nav-icon mx-2 text-center d-none d-md-block">
+
+                <!-- Wishlist -->
+                <div class="nav-icon mx-2 text-center d-none d-md-block position-relative" data-bs-toggle="offcanvas" data-bs-target="#wishlistSidebar" aria-controls="wishlistSidebar" style="cursor: pointer;">
                     <i class="far fa-heart d-block mb-1"></i>
+                    <span id="wishlist-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white" style="font-size: 10px;">0</span>
                     <small style="font-size: 10px;">Wishlist</small>
                 </div>
-                <div class="nav-icon mx-2 text-center position-relative">
+
+                <!-- Cart Icon (ক্লিক করলে অফক্যানভাস সাইডবার ওপেন হবে) -->
+                <div class="nav-icon mx-2 text-center position-relative" data-bs-toggle="offcanvas" data-bs-target="#cartSidebar" aria-controls="cartSidebar" style="cursor: pointer;">
                     <i class="fas fa-shopping-basket d-block mb-1 text-dark"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size: 10px;">0</span>
+                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size: 10px;">0</span>
                     <small style="font-size: 10px;">Cart</small>
                 </div>
-                <div class="nav-icon mx-2 text-center">
+
+                <!-- More Icon -->
+                <div class="nav-icon mx-2 text-center" data-bs-toggle="offcanvas" data-bs-target="#moreSidebar" aria-controls="moreSidebar" style="cursor: pointer;">
                     <i class="fas fa-bars d-block mb-1"></i>
                     <small style="font-size: 10px;">More</small>
                 </div>
@@ -47,7 +67,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- Bottom Header: Category Navigation -->
 <div class="container-fluid" style="background-color: #002d25;">
@@ -61,16 +80,233 @@
                     {{ cat.name }}
                 </a>
             </li>
-    
             {% endfor %}
         </ul>
     </div>
 </div>
 
+<!-- RIGHT SIDEBAR: CART SLIDER -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="cartSidebar" aria-labelledby="cartSidebarLabel">
+    <div class="offcanvas-header border-bottom" style="background-color: #002d25;">
+        <h5 class="offcanvas-title text-white" id="cartSidebarLabel">
+            <i class="fas fa-shopping-basket me-2 text-warning"></i>Your Cart
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column justify-content-between">
+        <div>
+            <div id="empty-cart-message" class="text-center py-5">
+                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Your cart is currently empty.</p>
+            </div>
+            <div id="cart-items-container"></div>
+        </div>
+        <div class="border-top pt-3">
+            <div class="d-flex justify-content-between mb-3 fw-bold">
+                <span>Total:</span>
+                <span>৳ <span id="cart-total-amount">0</span></span>
+            </div>
+            <a href="{% url 'checkout_and_order' %}" class="btn btn-warning w-100 py-2 text-dark fw-bold rounded-pill">Proceed To Checkout</a>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- RIGHT SIDEBAR: WISHLIST SLIDER -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="wishlistSidebar" aria-labelledby="wishlistSidebarLabel">
+    <div class="offcanvas-header border-bottom" style="background-color: #002d25;">
+        <h5 class="offcanvas-title text-white" id="wishlistSidebarLabel">
+            <i class="fas fa-heart me-2 text-danger"></i>My Wishlist
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column justify-content-between">
+        <div>
+            <div id="empty-wishlist-message" class="text-center py-5">
+                <i class="far fa-heart fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Your wishlist is currently empty.</p>
+            </div>
+            <div id="wishlist-items-container"></div>
+        </div>
+        <div class="border-top pt-3">
+            <button class="btn btn-dark w-100 py-2 rounded-pill small" data-bs-dismiss="offcanvas">Continue Shopping</button>
+        </div>
+    </div>
+</div>
+
+<!-- LEFT SIDEBAR: TRACK ORDER -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="trackOrderSidebar" aria-labelledby="trackOrderSidebarLabel">
+    <div class="offcanvas-header border-bottom" style="background-color: #002d25;">
+        <h5 class="offcanvas-title text-white" id="trackOrderSidebarLabel">
+            <i class="fas fa-map-marker-alt me-2 text-warning"></i>Track Your Order
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-4">
+        <p class="text-muted small">অর্ডারের সর্বশেষ অবস্থা জানতে নিচে আপনার অর্ডার আইডি এবং মোবাইল নম্বরটি দিন।</p>
+        <form id="orderTrackingForm" class="mt-4">
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-dark">Order ID</label>
+                <input type="text" class="form-control bg-light" placeholder="e.g. #12345" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-dark">Phone Number</label>
+                <input type="tel" class="form-control bg-light" placeholder="e.g. 01823110915" required>
+            </div>
+            <button type="submit" class="btn btn-warning w-100 text-dark fw-bold rounded-pill">Track Now</button>
+        </form>
+    </div>
+</div>
+
+<!-- LEFT SIDEBAR: MORE MENU -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="moreSidebar" aria-labelledby="moreSidebarLabel">
+    <div class="offcanvas-header border-bottom" style="background-color: #002d25;">
+        <h5 class="offcanvas-title text-white" id="moreSidebarLabel">
+            <i class="fas fa-ellipsis-h me-2 text-warning"></i> More Options
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <div class="list-group list-group-flush">
+            <a href="#" class="list-group-item list-group-item-action py-3 border-bottom"><i class="fas fa-percentage text-success me-3"></i> Today's Deals</a>
+            <a href="#" class="list-group-item list-group-item-action py-3 border-bottom"><i class="fas fa-star text-warning me-3"></i> Top Rated Products</a>
+            <a href="#" class="list-group-item list-group-item-action py-3 border-bottom"><i class="fas fa-info-circle text-info me-3"></i> About Us</a>
+            <a href="#" class="list-group-item list-group-item-action py-3 border-bottom"><i class="fas fa-phone-alt text-primary me-3"></i> Contact Us</a>
+            <a href="#" class="list-group-item list-group-item-action py-3 border-bottom"><i class="fas fa-shield-alt text-secondary me-3"></i> Privacy Policy</a>
+        </div>
+        <div class="p-4 text-center mt-4">
+            <p class="small text-muted mb-2">Follow Us</p>
+            <div class="d-flex justify-content-center gap-3 mb-3">
+                <a href="#" class="text-dark"><i class="fab fa-facebook fa-lg"></i></a>
+                <a href="#" class="text-dark"><i class="fab fa-instagram fa-lg"></i></a>
+                <a href="#" class="text-dark"><i class="fab fa-youtube fa-lg"></i></a>
+            </div>
+            <small class="text-muted d-block">Hotline: +01823110915</small>
+        </div>
+    </div>
+</div>
+
+<!-- JAVASCRIPT LOGIC -->
+<script>
+    let totalCartItems = 0;
+    let totalCartPrice = 0;
+    let totalWishlistItems = 0;
+
+    // --- ১. CART FUNCTIONS ---
+    function handleAddToCart(productName, price) {
+        // ক্লিক করার পর স্মুথ স্ক্রোলিং এর মাধ্যমে একদম উপরে নেভবারে নিয়ে যাবে
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        totalCartItems++;
+        totalCartPrice += price;
+        
+        // হেডার বা নেভবারে থাকা কার্ট কাউন্ট আপডেট করবে
+        document.getElementById('cart-count').innerText = totalCartItems;
+        document.getElementById('cart-total-amount').innerText = totalCartPrice;
+        document.getElementById('empty-cart-message').style.display = 'none';
+
+        const cartItemsContainer = document.getElementById('cart-items-container');
+        if (cartItemsContainer) {
+            const productHTML = `
+                <div class="d-flex align-items-center justify-content-between mb-3 p-2 border rounded bg-light">
+                    <div>
+                        <h6 class="mb-0 small fw-bold text-dark">${productName}</h6>
+                        <small class="text-success fw-bold">৳ ${price}</small>
+                    </div>
+                    <button class="btn btn-sm text-danger border-0" onclick="handleRemoveCartItem(this, ${price})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            `;
+            cartItemsContainer.insertAdjacentHTML('beforeend', productHTML);
+        }
+
+        // নোট: এখান থেকে `openSidebar('#cartSidebar');` রিমুভ করা হয়েছে। 
+        // এখন শুধু কাউন্ট আপডেট হবে কিন্তু সাইডবার অটো-ওপেন হবে না।
+    }
+
+    function handleRemoveCartItem(buttonElement, price) {
+        buttonElement.parentElement.remove();
+        totalCartItems--;
+        totalCartPrice -= price;
+        
+        document.getElementById('cart-count').innerText = totalCartItems;
+        document.getElementById('cart-total-amount').innerText = totalCartPrice;
+        
+        if (totalCartItems === 0) {
+            document.getElementById('empty-cart-message').style.display = 'block';
+        }
+    }
+
+    // --- ২. WISHLIST FUNCTIONS ---
+    function handleAddToWishlist(productName, price) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        totalWishlistItems++;
+        document.getElementById('wishlist-count').innerText = totalWishlistItems;
+        document.getElementById('empty-wishlist-message').style.display = 'none';
+
+        const wishlistItemsContainer = document.getElementById('wishlist-items-container');
+        if (wishlistItemsContainer) {
+            const wishlistHTML = `
+                <div class="d-flex align-items-center justify-content-between mb-3 p-2 border rounded bg-light">
+                    <div>
+                        <h6 class="mb-0 small fw-bold text-dark">${productName}</h6>
+                        <small class="text-muted small">৳ ${price}</small>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm text-success border-0 me-1" onclick="handleMoveToCart(this, '${productName}', ${price})">
+                            <i class="fas fa-shopping-cart"></i>
+                        </button>
+                        <button class="btn btn-sm text-danger border-0" onclick="handleRemoveWishlistItem(this)">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            wishlistItemsContainer.insertAdjacentHTML('beforeend', wishlistHTML);
+        }
+        
+        // উইশলিস্টও অটোমেটিক ওপেন হবে না, শুধু উপরে স্ক্রোল করবে
+    }
+
+    function handleRemoveWishlistItem(buttonElement) {
+        buttonElement.parentElement.parentElement.remove();
+        totalWishlistItems--;
+        document.getElementById('wishlist-count').innerText = totalWishlistItems;
+        
+        if (totalWishlistItems === 0) {
+            document.getElementById('empty-wishlist-message').style.display = 'block';
+        }
+    }
+
+    function handleMoveToCart(buttonElement, productName, price) {
+        buttonElement.parentElement.parentElement.remove();
+        totalWishlistItems--;
+        document.getElementById('wishlist-count').innerText = totalWishlistItems;
+        if (totalWishlistItems === 0) {
+            document.getElementById('empty-wishlist-message').style.display = 'block';
+        }
+        handleAddToCart(productName, price);
+    }
+
+    // ট্র্যাক অর্ডার ফর্ম সাবমিশন ডেমো হ্যান্ডলার
+    document.getElementById('orderTrackingForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('Tracking functionality will connect with your Django backend API.');
+    });
+</script>
+
+<!-- CSS Styles -->
 <style>
     .nav-icon i { font-size: 20px; color: #000000; }
     .nav-link:hover { opacity: 0.8; }
     .dropdown-toggle::after { font-size: 10px; vertical-align: middle; }
-    /* Horizontal scroll hide for category menu */
     .container.overflow-auto::-webkit-scrollbar { display: none; }
+    
+    .dropdown-menu-item:hover {
+        background-color: #f8f9fa;
+        font-weight: 500;
+    }
 </style>
