@@ -23,12 +23,11 @@
     </div>
     {% endif %}
 
-    <form action="{% url 'place_order' %}" method="POST" id="checkoutForm">
+    <form action="{% url 'checkout_and_order' %}" method="POST" id="checkoutForm">
         {% csrf_token %}
         <div class="row g-4">
             
             <div class="col-lg-7">
-                
                 <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
                     <h5 class="fw-bold border-start border-warning border-3 ps-2 mb-4">Order review</h5>
                     <div class="table-responsive">
@@ -78,6 +77,14 @@
                                 <input type="tel" name="phone" class="form-control bg-light border-0 py-2.5 rounded-end-3" placeholder="Phone Number" value="{{ user.profile.phone|default:'' }}" required>
                             </div>
                         </div>
+                        {% if not user.is_authenticated %}
+                        <div class="col-12">
+                            <input type="email" name="email" class="form-control bg-light border-0 py-2.5 rounded-3" placeholder="Email Address (Required for Guest Order)" required>
+                        </div>
+                        {% else %}
+                            <input type="hidden" name="email" value="{{ user.email }}">
+                        {% endif %}
+                        
                         <div class="col-12">
                             <input type="text" name="address" class="form-control bg-light border-0 py-2.5 rounded-3" placeholder="ex: House no. / building / street / area" required>
                         </div>
@@ -97,7 +104,7 @@
                                 <option value="Rajshahi">Rajshahi</option>
                                 <option value="Rangpur">Rangpur</option>
                                 <option value="Sylhet">Sylhet</option>
-                                </select>
+                            </select>
                         </div>
                         
                         <div class="col-md-6">
@@ -119,7 +126,6 @@
             </div>
 
             <div class="col-lg-5">
-                
                 <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
                     <h5 class="fw-bold border-start border-warning border-3 ps-2 mb-4">Payment method</h5>
                     <div class="row g-3">
@@ -136,7 +142,7 @@
                             <label class="payment-option border rounded-3 p-3 d-flex align-items-center gap-2 justify-content-between cursor-pointer w-100">
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="fas fa-credit-card text-primary fs-5"></i>
-                                    <span class="small fw-semibold text-dark">SSLCommerz (Online)</span>
+                                    <span class="small fw-semibold text-dark">SSLCommerz</span>
                                 </div>
                                 <input type="radio" name="payment_method" value="sslcommerz" class="form-check-input m-0">
                             </label>
@@ -198,14 +204,9 @@
 </style>
 
 <script>
-    const checkoutForm = document.getElementById('checkoutForm');
     const submitOrderBtn = document.getElementById('submitOrderBtn');
 
-    // ডাইনামিক জ্যাঙ্গো ইউআরএল রাউটিং ইনজেকশন
-    const codUrl = "{% url 'place_order' %}";
-    const sslCommerzUrl = "{% url 'sslcommerz_initiate' %}"; 
-    const bkashUrl = "{% url 'bkash_initiate' %}";           
-
+    // পেমেন্ট মেথড সিলেকশনের ওপর ভিত্তি করে বাটনের টেক্সট আপডেট করা
     document.querySelectorAll('.payment-option input[type="radio"]').forEach(radio => {
         radio.addEventListener('change', function() {
             document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
@@ -213,13 +214,10 @@
                 this.closest('.payment-option').classList.add('active');
                 
                 if (this.value === 'cod') {
-                    checkoutForm.action = codUrl;
                     submitOrderBtn.innerText = "Place Order";
                 } else if (this.value === 'sslcommerz') {
-                    checkoutForm.action = sslCommerzUrl;
                     submitOrderBtn.innerText = "Pay via SSLCommerz";
                 } else if (this.value === 'bkash') {
-                    checkoutForm.action = bkashUrl;
                     submitOrderBtn.innerText = "Proceed to bKash Pay";
                 }
             }

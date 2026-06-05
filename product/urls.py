@@ -38,4 +38,7 @@ urlpatterns = [
     
     # ফাইনাল অর্ডার সাকসেস বা থ্যাঙ্ক ইউ পেজ
     path('order/success/', views.order_success, name='order_success'),
+    path('payment/success/', views.payment_success, name='payment_success'),
+    path('payment/fail/', views.payment_fail, name='payment_fail'),
+    path('payment/cancel/', views.payment_cancel, name='payment_cancel'),
 ]

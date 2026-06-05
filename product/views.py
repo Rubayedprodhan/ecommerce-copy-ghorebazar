@@ -6,8 +6,9 @@ from django.contrib.auth import login
 from django.utils.crypto import get_random_string
 from .models import * 
 from decimal import Decimal
-
-
+from sslcommerz_lib import SSLCOMMERZ 
+from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
 def home(request):
     top_selling = Product.objects.filter(section='top_selling')
     all_natural = Product.objects.filter(section='all_natural')
@@ -155,189 +156,117 @@ def cart_detail(request):
 # ৩. অটো অ্যাকাউন্ট ক্রিয়েশন এবং অর্ডার ভিউ
 # ==========================================
 
+
+
+
 def checkout_and_order(request):
+    # ১. কার্ট এবং কার্ট আইটেম গেট করা
     cart = get_or_create_cart(request)
     cart_items = cart.items.all()
     
     if not cart_items:
         return redirect('home')
 
+    # ২. যখন ইউজার ফর্ম সাবমিট করবে (POST Request)
     if request.method == "POST":
         email = request.POST.get('email')
-        first_name = request.POST.get('name')
+        first_name = request.POST.get('full_name')
         address = request.POST.get('address')
         phone = request.POST.get('phone')
+        payment_method = request.POST.get('payment_method') # 'cod' অথবা 'sslcommerz' আসবে
 
         current_user = request.user
 
-        # ইউজার যদি লগইন করা না থাকে, তবে অটো অ্যাকাউন্ট হ্যান্ডেল করা হবে
+        # গেস্ট ইউজার হ্যান্ডেলিং (লগইন না থাকলে অটো অ্যাকাউন্ট তৈরি)
         if not current_user.is_authenticated:
-            # চেক করা হচ্ছে এই ইমেইলে অলরেডি অ্যাকাউন্ট আছে কিনা
             user_exists = User.objects.filter(email=email).first()
-            
-            if user_exists:
-                # অ্যাকাউন্ট থাকলে তাকেই কারেন্ট ইউজার ধরা হবে এবং লগইন করানো হবে
-                current_user = user_exists
-                login(request, current_user)
-            else:
-                # অ্যাকাউন্ট না থাকলে নতুন ইউজার তৈরি করা হবে
-                username = email.split('@')[0] + get_random_string(length=4)  # ইউনিক ইউজারনেম তৈরি
-                password = get_random_string(length=10)  # ব্যাকগ্রাউন্ডে পাসওয়ার্ড জেনারেট করা
-                
-                current_user = User.objects.create_user(
-                    username=username,
-                    email=email,
-                    password=password,
-                    first_name=first_name
-                )
-                # নতুন ইউজারকে সিস্টেমে অটো লগইন করানো
-                login(request, current_user)
-
-            # গেস্ট কার্টটিকে এখন নতুন ইউজারের অ্যাকাউন্টের সাথে লিঙ্ক করে দেওয়া
-            cart.user = current_user
-            cart.save()
-
-        # >>> এখানে আপনার অর্ডার ক্রিয়েশন লজিক আসবে (Order Model অনুযায়ী) <<<
-        # উদাহরণ: order = Order.objects.create(user=current_user, address=address, phone=phone...)
-        
-        # অর্ডার হয়ে যাওয়ার পর সেশন কার্ট ডিলিট করা
-        if 'cart_id' in request.session:
-            del request.session['cart_id']
-            
-        return render(request, 'order_success.html', {'user': current_user})
-
-    grand_total = sum(item.total_price for item in cart_items)
-    return render(request, 'product/checkout.html', {'cart_items': cart_items, 'grand_total': grand_total})
-
-def checkout_and_order(request):
-    """ ১. শুধুমাত্র চেকআউট পেজ এবং কার্ট সামারি দেখানোর ভিউ """
-    cart = get_or_create_cart(request)
-    cart_items = cart.items.all()
-    
-    if not cart_items:
-        return redirect('home')
-
-   
-    cart_subtotal = sum(item.total_price for item in cart_items)
-    delivery_charge = Decimal('130.00') # স্ট্রিং আকারে পাস করলে নিখুঁত ডেসিমাল কনভার্ট হয়
-    cart_grand_total = cart_subtotal + delivery_charge
-
-    context = {
-        'cart_items': cart_items,
-        'cart_subtotal': cart_subtotal,
-        'delivery_charge': delivery_charge,
-        'cart_grand_total': cart_grand_total,
-    }
-    return render(request, 'product/checkout.html', context)
-
-
-def place_order(request):
-   
-   
-    if request.method == "POST":
-        cart = get_or_create_cart(request)
-        cart_items = cart.items.all()
-        
-        if not cart_items:
-            return redirect('home')
-
-        full_name = request.POST.get('full_name')
-        phone = request.POST.get('phone')
-        address = request.POST.get('address')
-        district = request.POST.get('district')
-        upazila = request.POST.get('upazila')
-        payment_method = request.POST.get('payment_method')
-        special_notes = request.POST.get('special_notes')
-
-        current_user = request.user
-
-        if not current_user.is_authenticated:
-            username = f"user_{phone}" if phone else get_random_string(length=8)
-            email = f"{username}@ghorerbazarclone.com"
-            
-            user_exists = User.objects.filter(username=username).first()
-            
             if user_exists:
                 current_user = user_exists
                 login(request, current_user)
             else:
+                username = email.split('@')[0] + get_random_string(length=4)
                 password = get_random_string(length=10)
                 current_user = User.objects.create_user(
-                    username=username,
-                    email=email,
-                    password=password,
-                    first_name=full_name
+                    username=username, email=email, password=password, first_name=first_name
                 )
                 login(request, current_user)
 
             cart.user = current_user
             cart.save()
 
+        # টোটাল অ্যামাউন্ট হিসাব
         cart_subtotal = sum(item.total_price for item in cart_items)
-        delivery_charge = Decimal('130.00') 
+        delivery_charge = Decimal('130.00')
         cart_grand_total = cart_subtotal + delivery_charge
+        
+        # ইউনিক ট্রানজেকশন আইডি তৈরি (ডাটাবেজে সেভ এবং SSL-এ পাঠানোর জন্য)
+        tran_id = get_random_string(length=12).upper() 
 
-        # অর্ডার মডেলে মেইন ডেটা সেভ করা
-        order = Order.objects.create(
-            user=current_user,
-            full_name=full_name,
-            phone=phone,
-            address=f"{address}, {upazila}, {district}",
-            payment_method=payment_method,
-            special_notes=special_notes,
-            subtotal=cart_subtotal,
-            delivery_charge=delivery_charge,
-            total_amount=cart_grand_total,
-            status='Pending'
-        )
+        # >>> এখানে আপনার মডেল অনুযায়ী Order এবং OrderItem অবজেক্ট তৈরি করুন <<<
+        # উদাহরণ:
+        # order = Order.objects.create(user=current_user, total_amount=cart_grand_total, transaction_id=tran_id, payment_method=payment_method, status='Pending')
+        # for item in cart_items:
+        #     OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
 
-        for item in cart_items:
-            OrderItem.objects.create(
-                order=order,
-                product=item.product,
-                price=item.product.discount_price if item.product.discount_price else item.product.price,
-                quantity=item.quantity
-            )
+        # ----------------------------------------------------
+        # অপশন A: ইউজার যদি SSLCommerz (Online) সিলেক্ট করে
+        # ----------------------------------------------------
+        if payment_method == 'sslcommerz':
+            # আপনার প্রোভাইড করা SSLCommerz স্যান্ডবক্স ডেমো ক্রেডেনশিয়াল
+            settings = {
+                'store_id': 'copyg6a2315e5c785d',       
+                'store_pass': 'copyg6a2315e5c785d@ssl', 
+                'issandbox': True            # লাইভ করার সময় False করবেন
+            }
+            # অফিসিয়াল লাইব্রেরির স্ট্যান্ডার্ড ক্লাস নেম SSLCommerz ব্যবহার করা হয়েছে
+            sslcz = SSLCommerz(settings)
+            
+            post_body = {
+                'total_amount': float(cart_grand_total),
+                'currency': 'BDT',
+                'tran_id': tran_id,
+                'success_url': request.build_absolute_uri(reverse('payment_success')),
+                'fail_url': request.build_absolute_uri(reverse('payment_fail')),
+                'cancel_url': request.build_absolute_uri(reverse('payment_cancel')),
+                'emi_option': 0,
+                'cus_name': first_name if first_name else current_user.username,
+                'cus_email': email,
+                'cus_phone': phone if phone else '01700000000',
+                'cus_add1': address if address else 'Dhaka',
+                'cus_city': 'Dhaka',
+                'cus_country': 'Bangladesh',
+                'shipping_method': 'NO',
+                'num_of_item': cart_items.count(),
+                'product_name': 'Cart Items',
+                'product_category': 'Ecommerce',
+                'product_profile': 'general',
+            }
 
-        cart.delete()
-        if 'cart_id' in request.session:
-            del request.session['cart_id']
+            response = sslcz.createSession(post_body)
+            
+            if 'GatewayPageURL' in response:
+                # পেমেন্ট পেজে রিডাইরেক্ট করা হচ্ছে (অনলাইন পেমেন্ট সফল হলে 'payment_success' ভিউতে কার্ট ডিলিট হবে)
+                return redirect(response['GatewayPageURL'])
+            else:
+                return render(request, 'payment_error.html', {'error': response})
 
-        return render(request, 'order_success.html', {'user': current_user, 'order': order})
+        # ----------------------------------------------------
+        # অপশন B: ইউজার যদি Cash on Delivery (COD) সিলেক্ট করে
+        # ----------------------------------------------------
+        else:
+            # ক্যাশ অন ডেলিভারিতে সরাসরি কার্ট ডিলিট/খালি করা হবে
+            cart_items.delete() 
+            
+            if 'cart_id' in request.session:
+                del request.session['cart_id']
+                
+            return render(request, 'order_success.html', {'user': current_user})
 
-    return redirect('checkout_and_order')
-
-
-def fetch_drawer_cart(request):
-    cart = get_or_create_cart(request)
-    cart_items_qs = cart.items.all().order_by('id')
-    cart_items = []
-    total_quantity = 0
-    total_price = Decimal('0.00')
-
-    for item in cart_items_qs:
-        cart_items.append({
-            'product_name': item.product.name,
-            'price': str(item.product.discount_price if item.product.discount_price else item.product.price),
-            'quantity': item.quantity,
-        })
-        total_quantity += item.quantity
-        total_price += item.total_price
-
-    return JsonResponse({
-        'cart_count': total_quantity, 
-        'cart_total': str(total_price),   
-        'cart_items': cart_items     
-    })
-
-
-
-def checkout_and_order(request):
-    cart_items = []  
-    cart_subtotal = 650.00
-    delivery_charge = 130.00
+    # ৩. যখন ইউজার প্রথমবার চেকআউট পেজে আসবে (GET Request)
+    cart_subtotal = sum(item.total_price for item in cart_items)
+    delivery_charge = Decimal('130.00')
     cart_grand_total = cart_subtotal + delivery_charge
-    
+
     context = {
         'cart_items': cart_items,
         'cart_subtotal': cart_subtotal,
@@ -345,6 +274,61 @@ def checkout_and_order(request):
         'cart_grand_total': cart_grand_total,
     }
     return render(request, 'product/checkout.html', context)
+
+
+# ----------------------------------------------------
+# SSLCommerz পেমেন্ট রেসপন্স হ্যান্ডেলার ভিউজ
+# ----------------------------------------------------
+
+@csrf_exempt
+def payment_success(request):
+    """ অনলাইন পেমেন্ট সফল হলে এই ভিউ কাজ করবে """
+    if request.method == 'POST':
+        payment_data = request.POST
+        tran_id = payment_data.get('tran_id')
+        
+        # ১. এখানে ডাটাবেজে অর্ডারের স্ট্যাটাস 'Paid' আপডেট করতে পারেন
+        # order = Order.objects.get(transaction_id=tran_id)
+        # order.status = 'Paid'
+        # order.save()
+        
+        # ২. পেমেন্ট নিশ্চিত হওয়ার পর অনলাইন ইউজারের কার্ট খালি করা
+        cart = get_or_create_cart(request)
+        cart.items.all().delete()
+        
+        if 'cart_id' in request.session:
+            del request.session['cart_id']
+        
+        return render(request, 'payment_success.html', {'tran_id': tran_id})
+    return redirect('home')
+
+@csrf_exempt
+def payment_fail(request):
+    """ অনলাইন পেমেন্ট ফেইল হলে এই ভিউ কাজ করবে """
+    if request.method == 'POST':
+        payment_data = request.POST
+        tran_id = payment_data.get('tran_id')
+        # এখানে অর্ডারের স্ট্যাটাস 'Failed' আপডেট করতে পারেন
+        return render(request, 'payment_fail.html', {'tran_id': tran_id})
+    return redirect('home')
+
+@csrf_exempt
+def payment_cancel(request):
+    """ ইউজার পেমেন্ট ক্যানসেল করলে এই ভিউ কাজ করবে """
+    return render(request, 'payment_cancel.html')
+# def checkout_and_order(request):
+#     cart_items = []  
+#     cart_subtotal = 650.00
+#     delivery_charge = 130.00
+#     cart_grand_total = cart_subtotal + delivery_charge
+    
+#     context = {
+#         'cart_items': cart_items,
+#         'cart_subtotal': cart_subtotal,
+#         'delivery_charge': delivery_charge,
+#         'cart_grand_total': cart_grand_total,
+#     }
+#     return render(request, 'product/checkout.html', context)
 
 
 
@@ -392,7 +376,7 @@ def sslcommerz_initiate(request):
 
 def bkash_initiate(request):
     if request.method == "POST":
-        # ফর্মের ডাটা সেশনে রেখে দেওয়া বা টেম্পোরারি অর্ডার ক্রিয়েট করা যাতে bKash পেজে শো করা যায়
+       
         request.session['bkash_customer_name'] = request.POST.get('full_name')
         request.session['bkash_phone'] = request.POST.get('phone')
         request.session['bkash_address'] = f"{request.POST.get('address')}, {request.POST.get('upazila')}, {request.POST.get('district')}"
