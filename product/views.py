@@ -217,7 +217,7 @@ def checkout_and_order(request):
     if not cart_items:
         return redirect('home')
 
-    # এখানে Decimal দিয়ে টাইপ এররটি ফিক্স করা হলো
+   
     cart_subtotal = sum(item.total_price for item in cart_items)
     delivery_charge = Decimal('130.00') # স্ট্রিং আকারে পাস করলে নিখুঁত ডেসিমাল কনভার্ট হয়
     cart_grand_total = cart_subtotal + delivery_charge
@@ -232,7 +232,8 @@ def checkout_and_order(request):
 
 
 def place_order(request):
-    """ ২. 'place-order/' পাথের জন্য ডেডিকেটেড ভিউ যা ফর্ম সাবমিশন হ্যান্ডেল করবে """
+   
+   
     if request.method == "POST":
         cart = get_or_create_cart(request)
         cart_items = cart.items.all()
@@ -240,7 +241,6 @@ def place_order(request):
         if not cart_items:
             return redirect('home')
 
-        # ফর্ম থেকে ডাটা রিসিভ করা
         full_name = request.POST.get('full_name')
         phone = request.POST.get('phone')
         address = request.POST.get('address')
@@ -251,7 +251,6 @@ def place_order(request):
 
         current_user = request.user
 
-        # অটো অ্যাকাউন্ট তৈরি করার লজিক (লগইন না থাকলে)
         if not current_user.is_authenticated:
             username = f"user_{phone}" if phone else get_random_string(length=8)
             email = f"{username}@ghorerbazarclone.com"
@@ -274,7 +273,6 @@ def place_order(request):
             cart.user = current_user
             cart.save()
 
-        # অর্ডারের মোট টাকার হিসাব (এখানেও Decimal ব্যবহার করা হয়েছে)
         cart_subtotal = sum(item.total_price for item in cart_items)
         delivery_charge = Decimal('130.00') 
         cart_grand_total = cart_subtotal + delivery_charge
@@ -293,7 +291,6 @@ def place_order(request):
             status='Pending'
         )
 
-        # OrderItem মডেলে কার্টের প্রোডাক্টগুলো লুপ করে সেভ করা
         for item in cart_items:
             OrderItem.objects.create(
                 order=order,
@@ -302,7 +299,6 @@ def place_order(request):
                 quantity=item.quantity
             )
 
-        # কার্ট ক্লিয়ার এবং সেশন আইডি ডিলিট করা
         cart.delete()
         if 'cart_id' in request.session:
             del request.session['cart_id']
@@ -329,9 +325,9 @@ def fetch_drawer_cart(request):
         total_price += item.total_price
 
     return JsonResponse({
-        'cart_count': total_quantity, # মোট প্রোডাক্ট সংখ্যা (যেমন: ৩)
-        'cart_total': str(total_price),    # মোট টাকা (যেমন: ১৫০০)
-        'cart_items': cart_items       # প্রোডাক্টগুলোর লিস্ট
+        'cart_count': total_quantity, 
+        'cart_total': str(total_price),   
+        'cart_items': cart_items     
     })
 
 
@@ -355,7 +351,6 @@ def checkout_and_order(request):
 
 
 def place_order(request):
-    """১. ক্যাশ অন ডেলিভারি (COD) এর মাধ্যমে ডিরেক্ট অর্ডার প্লেস করার ভিউ"""
     if request.method == "POST":
         full_name = request.POST.get('full_name')
         phone = request.POST.get('phone')
@@ -373,12 +368,10 @@ def place_order(request):
 def sslcommerz_initiate(request):
     """২. SSLCommerz পেমেন্ট গেটওয়ে ইনিশিয়েট করার ভিউ"""
     if request.method == "POST":
-        # ফর্ম থেকে ইউজার ও অ্যামাউন্ট ডাটা রিসিভ করা
         full_name = request.POST.get('full_name')
         phone = request.POST.get('phone')
         grand_total = request.POST.get('grand_total') # বা সেশন/কার্ট থেকে টোটাল ক্যালকুলেট করুন
         
-        # SSLCommerz এর ক্রেডেনশিয়াল ও প্যারামিটার সেটআপ (নমুনা)
         """
         settings = { 'store_id': 'your_store_id', 'store_pass': 'your_pass', 'issandbox': True }
         sslcommez = SSLCommerz(settings)
@@ -393,13 +386,11 @@ def sslcommerz_initiate(request):
         return redirect(response['GatewayPageURL']) # সরাসরি SSLCommerz পেমেন্ট পেজে রিডাইরেক্ট করবে
         """
         
-        # ডেভেলপমেন্ট টেস্টের জন্য ডিরেক্ট সাকসেস বা ডামি গেটওয়ে রিডাইরেক্ট করছি
         return redirect('order_success')
     return redirect('checkout_and_order')
 
 
 def bkash_initiate(request):
-    """৩. bKash পেমেন্ট সিলেক্ট করলে আরেকটি ডেডিকেটেড পেজে নিয়ে যাওয়ার ভিউ"""
     if request.method == "POST":
         # ফর্মের ডাটা সেশনে রেখে দেওয়া বা টেম্পোরারি অর্ডার ক্রিয়েট করা যাতে bKash পেজে শো করা যায়
         request.session['bkash_customer_name'] = request.POST.get('full_name')
@@ -411,7 +402,6 @@ def bkash_initiate(request):
 
 
 def bkash_payment_page(request):
-    """bKash এর জন্য কাস্টমাইজড আলাদা পেমেন্ট পেজ"""
     context = {
         'customer_name': request.session.get('bkash_customer_name'),
         'phone': request.session.get('bkash_phone'),
@@ -421,6 +411,4 @@ def bkash_payment_page(request):
 
 
 def order_success(request):
-    """অর্ডার সফল হওয়ার পর সাকসেস থ্যাঙ্ক ইউ পেজ রেন্ডার ভিউ"""
-    # এখানে লাস্ট অর্ডার ট্র্যাকিং ডাটা ডাইনামিকালি পাস করতে পারেন
     return render(request, 'product/order_success.html')
