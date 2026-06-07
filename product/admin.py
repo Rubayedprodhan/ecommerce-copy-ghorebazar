@@ -9,10 +9,11 @@ admin.site.register(Category)
 admin.site.register(Product_Flag)
 admin.site.register(Featured_Categories)
 
+
 admin.site.register(Cart)
 admin.site.register(CartItem)
 admin.site.register(Order)
-
+admin.site.register(OrderItem)
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 3
